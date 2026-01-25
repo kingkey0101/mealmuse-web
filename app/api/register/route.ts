@@ -34,5 +34,6 @@ export async function POST(req: NextRequest) {
         password: hashed,
         createdAt: new Date()
     });
+    console.log('register API hit')
     return NextResponse.json({ ok: true }, { status: 201 })
 }

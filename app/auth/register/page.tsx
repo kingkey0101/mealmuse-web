@@ -1,6 +1,7 @@
 "use client";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("api/register", {
+    const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -24,19 +25,22 @@ export default function RegisterPage() {
       setError(data.error || "Something went wrong");
       return;
     }
+
     router.push("/auth/login");
   }
 
   return (
     <div className="max-w-md mx-auto py-10">
       <h1 className="text-2xl font-bold mb-4">Create an account</h1>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          className="w-full border px-3 py-2 rounder"
+          className="w-full border px-3 py-2 rounded"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+
         <div className="relative">
           <input
             className="w-full border px-3 py-2 rounded"
@@ -52,9 +56,17 @@ export default function RegisterPage() {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-600"
           >
             {showPassword ? "Hide" : "Show"}
-            {error && <p className="text-red-500 text-sm">{error}</p>}
           </button>
         </div>
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <button
+          type="submit"
+          className="w-full bg-black text-white py-2 rounded"
+        >
+          Register
+        </button>
       </form>
     </div>
   );
