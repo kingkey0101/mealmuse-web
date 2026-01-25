@@ -1,5 +1,4 @@
 import { MongoClient } from 'mongodb'
-import { Gloock } from 'next/font/google';
 
 const uri = process.env.MONGODB_URI;
 const options = {};
