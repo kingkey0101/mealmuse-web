@@ -13,11 +13,12 @@ interface Recipe {
 }
 
 export default async function RecipeDetailPage(props: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ recipeId: string }>;
 }) {
-  const { id } = await props.params;
-  const response = await api<{ body: string }>(`/recipes/${id}`);
-  const recipe: Recipe = JSON.parse(response.body);
+  const { recipeId } = await props.params;
+
+  const recipe = await api<Recipe>(`/recipes/${recipeId}`);
+
   return (
     <div className="max-w-3xl mx-auto py-10 space-y-6">
       <Link href="/recipes" className="text-sm text-blue-600 hover:underline">
