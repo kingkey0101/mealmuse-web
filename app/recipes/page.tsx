@@ -1,6 +1,10 @@
+// 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface Recipe {
   _id: string;
@@ -10,7 +14,15 @@ interface Recipe {
 }
 
 export default async function RecipesPage() {
+  const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    redirect("/auth/login");
+  }
+
+  const token = (session.user as any).accessToken;
   const recipes = await api<Recipe[]>("/recipes");
+  
   return (
     <div className="max-w-4xl mx-auto py-10">
       <h1 className="text-3xl font-bold mb-6">Recipes</h1>
