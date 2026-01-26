@@ -1,6 +1,5 @@
 // 
 import { NextAuthOptions, Session } from "next-auth"
-import { JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from 'bcrypt'
 import clientPromise from './db'
@@ -82,14 +81,17 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
         async session({ session, token }) {
-            if (session.user) {
+            session.user.id = token.id;
 
-                session.user.id = token.id;
-                session.user.token = token;
-            }
-            return session
+            // Encode the token into a real JWT string
+            session.user.token = await encode({
+                token,
+                secret: process.env.NEXTAUTH_SECRET!,
+            });
 
+            return session;
         }
+
     },
     pages: {
         signIn: '/auth/login',
