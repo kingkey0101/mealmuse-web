@@ -1,10 +1,29 @@
 // 
-import { NextAuthOptions } from "next-auth"
+import { NextAuthOptions, Session } from "next-auth"
+import { JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from 'bcrypt'
 import clientPromise from './db'
 import { encode } from 'next-auth/jwt'
 import jwt from 'jsonwebtoken'
+
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id?: string;
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+            token?: any;
+        };
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        id?: string;
+    }
+}
 
 if (!process.env.NEXTAUTH_SECRET) {
     throw new Error('NEXTAUTH_SECRET is not defined in environment variables');
@@ -63,8 +82,11 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
         async session({ session, token }) {
-            session.user.id = token.id;
-            session.user.token = token;
+            if (session.user) {
+
+                session.user.id = token.id;
+                session.user.token = token;
+            }
             return session
 
         }
