@@ -1,68 +1,43 @@
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "@/lib/auth";
-// import { api } from "@/lib/api";
-// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-// import Link from "next/link";
-// import { redirect } from "next/navigation";
-// import RecipesClient from "./RecipesClient";
-
-// interface Recipe {
-//   _id: string;
-//   title: string;
-//   cuisine: string;
-//   skill: string;
-// }
-
-// export default async function RecipesPage() {
-//   const session = await getServerSession(authOptions);
-
-//   if (!session) {
-//     redirect("/auth/login");
-//   }
-
-//   const token = (session.user as any).accessToken;
-//   const recipes = await api<Recipe[]>("/recipes");
-
-//   return (
-//     <div className="max-w-4xl mx-auto py-10">
-//       <h1 className="text-3xl font-bold mb-6">Recipes</h1>
-//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-//         {recipes.map((recipe) => (
-//           <Link key={recipe._id} href={`/recipes/${recipe._id}`}>
-//             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-//               <CardHeader>
-//                 <CardTitle>{recipe.title}</CardTitle>
-//               </CardHeader>
-//               <CardContent>
-//                 <p className="text-sm text-muted-foreground">
-//                   {recipe.cuisine} • {recipe.skill}
-//                 </p>
-//               </CardContent>
-//             </Card>
-//           </Link>
-//         ))}
-//         <RecipesClient/>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import RecipesClient from "./RecipesClient";
+import { DashboardLayout } from "@/components/dashboard-layout";
 
-export default async function RecipesPage() {
+export default async function RecipesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect("/auth/login");
   }
 
+  const params = await searchParams;
+  const initialPage = params.page ? parseInt(params.page, 10) : 1;
+
   return (
-    <div className="max-w-4xl mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Recipes</h1>
-      <RecipesClient />
-    </div>
+    <DashboardLayout>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 
+                className="text-4xl font-bold tracking-tight mb-2"
+                style={{ color: "#0D5F3A" }}
+              >
+                Your Recipe Collection
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                Explore curated recipes and save your favorites
+              </p>
+            </div>
+          </div>
+        </div>
+        <RecipesClient initialPage={initialPage} />
+      </div>
+    </DashboardLayout>
   );
 }
