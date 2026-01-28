@@ -1,99 +1,178 @@
-// 
-import { NextAuthOptions, Session } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from 'bcrypt'
-import clientPromise from './db'
-import { encode } from 'next-auth/jwt'
-import jwt from 'jsonwebtoken'
+// import { NextAuthOptions } from "next-auth";
+// import CredentialsProvider from "next-auth/providers/credentials";
+// import bcrypt from "bcrypt";
+// import clientPromise from "./db";
+// import jwt from "jsonwebtoken";
 
-declare module "next-auth" {
-    interface Session {
-        user: {
-            id?: string;
-            name?: string | null;
-            email?: string | null;
-            image?: string | null;
-            token?: any;
-        };
-    }
-}
+// export const authOptions: NextAuthOptions = {
+//   session: {
+//     strategy: "jwt",
+//   },
 
-declare module "next-auth/jwt" {
-    interface JWT {
-        id: string;
-    }
-}
+//   jwt: {
+//     secret: process.env.NEXTAUTH_SECRET,
+
+//     // Force SIGNED JWTs instead of encrypted JWE
+//     encode: async ({ token, secret }) => {
+//       return jwt.sign(token as object, secret, { algorithm: "HS256" });
+//     },
+
+//     decode: async ({ token, secret }) => {
+//       return jwt.verify(token!, secret) as any;
+//     },
+//   },
+
+//   providers: [
+//     CredentialsProvider({
+//       name: "Credentials",
+//       credentials: {
+//         email: { label: "Email", type: "text" },
+//         password: { label: "Password", type: "password" },
+//       },
+//       async authorize(credentials) {
+//         if (!credentials?.email || !credentials.password) return null;
+
+//         const client = await clientPromise;
+//         const db = client.db();
+//         const user = await db.collection("users").findOne({
+//           email: credentials.email,
+//         });
+
+//         if (!user) return null;
+
+//         const isValid = await bcrypt.compare(
+//           credentials.password,
+//           user.password
+//         );
+
+//         if (!isValid) return null;
+
+//         return {
+//           id: user._id.toString(),
+//           email: user.email,
+//         };
+//       },
+//     }),
+//   ],
+
+//   callbacks: {
+//     async jwt({ token, user }) {
+//       if (user) {
+//         token.id = user.id;
+//       }
+//       return token;
+//     },
+
+//     async session({ session, token }) {
+//       session.user.id = token.id;
+
+//       // Give the frontend a SIGNED JWT string
+//       session.user.token = jwt.sign(
+//         token as object,
+//         process.env.NEXTAUTH_SECRET!,
+//         { algorithm: "HS256" }
+//       );
+
+//       return session;
+//     },
+//   },
+
+//   pages: {
+//     signIn: "/auth/login",
+//   },
+// };
+
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcrypt";
+import clientPromise from "./db";
+import jwt from "jsonwebtoken";
 
 if (!process.env.NEXTAUTH_SECRET) {
-    throw new Error('NEXTAUTH_SECRET is not defined in environment variables');
+  throw new Error("NEXTAUTH_SECRET is required");
 }
 
 export const authOptions: NextAuthOptions = {
-    session: {
-        strategy: 'jwt',
+  session: {
+    strategy: "jwt",
+  },
+
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+    // Force SIGNED JWTs instead of encrypted JWE
+    encode: async ({ token, secret }) => {
+      return jwt.sign(token as object, secret, { algorithm: "HS256" });
     },
-    jwt: {
-        secret: process.env.NEXTAUTH_SECRET,
-        encode: async ({ token, secret }) => {
-            return jwt.sign(token as object, secret as string);
-        },
-        decode: async ({ token, secret }) => {
-            return jwt.verify(token as string, secret as string) as any;
-        }
+    decode: async ({ token, secret }) => {
+      return jwt.verify(token!, secret) as any;
     },
-    providers: [
-        CredentialsProvider({
-            name: 'Credentials',
-            credentials: {
-                email: { label: 'Email', type: 'text' },
-                password: { label: 'Password', type: 'password' },
-            },
-            async authorize(credentials) {
-                if (!credentials?.email || !credentials.password) {
-                    return null;
-                }
+  },
 
-                const client = await clientPromise;
-                const db = client.db();
-                const users = db.collection("users");
-                const user = await users.findOne({ email: credentials.email });
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) return null;
 
-                if (!user) return null;
+        const client = await clientPromise;
+        const db = client.db();
+        const user = await db.collection("users").findOne({
+          email: credentials.email,
+        });
 
-                const isValid = await bcrypt.compare(
-                    credentials.password,
-                    user.password
-                )
-                if (!isValid) return null;
-                return {
-                    id: user._id.toString(),
-                    email: user.email,
-                }
-            }
-        })
-    ],
-    callbacks: {
-        async jwt({ token, user, account }) {
-            // when user logs in -> attach ID
-            if (user) {
-                token.id = (user as any).id;
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            session.user.id = token.id;
+        if (!user) return null;
 
-            // Encode the token into a real JWT string
-            session.user.token = await encode({
-                token,
-                secret: process.env.NEXTAUTH_SECRET!,
-            });
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
 
-            return session;
-        }
+        if (!isValid) return null;
 
+        return {
+          id: user._id.toString(),
+          email: user.email,
+        };
+      },
+    }),
+  ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email; // Add email to token
+      }
+      return token;
     },
-    pages: {
-        signIn: '/auth/login',
-    }
-}
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+
+        // Create JWT with id and email for Lambda
+        session.user.token = jwt.sign(
+          {
+            userId: token.id,
+            email: token.email,
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours
+          },
+          process.env.NEXTAUTH_SECRET!,
+          { algorithm: "HS256" }
+        );
+      }
+
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/auth/login",
+  },
+};
