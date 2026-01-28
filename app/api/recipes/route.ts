@@ -3,6 +3,26 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import clientPromise from "@/lib/db";
 
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+
+    const recipes = await db.collection("recipes").find({}).toArray();
+
+    return NextResponse.json(recipes, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    return NextResponse.json({ error: "Failed to fetch recipes" }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 

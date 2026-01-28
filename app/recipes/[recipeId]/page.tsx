@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import type { Metadata } from "next";
 
 interface Recipe {
   _id: string;
@@ -79,6 +80,45 @@ function getRecipeGradient(recipe: Recipe) {
   };
 
   return gradients[cuisine] || gradients["default"];
+}
+
+export async function generateMetadata(props: {
+  params: Promise<{ recipeId: string }>;
+}): Promise<Metadata> {
+  const { recipeId } = await props.params;
+
+  try {
+    const recipe = await api<Recipe>(`/recipes/${recipeId}`);
+
+    return {
+      title: `${recipe.title} | MealMuse`,
+      description: `${recipe.skill} level ${Array.isArray(recipe.cuisine) ? recipe.cuisine.join(", ") : recipe.cuisine} recipe with ${recipe.ingredients.length} ingredients`,
+      openGraph: {
+        title: recipe.title,
+        description: `${recipe.skill} level ${Array.isArray(recipe.cuisine) ? recipe.cuisine.join(", ") : recipe.cuisine} recipe with ${recipe.ingredients.length} ingredients`,
+        type: "article",
+        images: [
+          {
+            url: "/favicon.ico",
+            width: 192,
+            height: 192,
+            alt: recipe.title,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary",
+        title: recipe.title,
+        description: `${recipe.skill} level recipe`,
+        images: ["/favicon.ico"],
+      },
+    };
+  } catch {
+    return {
+      title: "Recipe | MealMuse",
+      description: "View this delicious recipe on MealMuse",
+    };
+  }
 }
 
 export default async function RecipeDetailPage(props: {

@@ -15,10 +15,31 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MealMuse",
-  description: "Your AI-powered recipe assistant",
+  description: "Your AI-powered recipe assistant - Discover, create, and share delicious recipes",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "MealMuse",
+    description: "Your AI-powered recipe assistant - Discover, create, and share delicious recipes",
+    url: "https://mealmuse.com",
+    siteName: "MealMuse",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 192,
+        height: 192,
+        alt: "MealMuse Logo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "MealMuse",
+    description: "Your AI-powered recipe assistant",
+    images: ["/favicon.ico"],
   },
 };
 

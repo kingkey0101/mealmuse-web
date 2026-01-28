@@ -115,28 +115,41 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
 
   // Apply client-side filters
   const filteredRecipes = recipes.filter((recipe) => {
-    // Skill filter
-    if (skillFilter !== "All" && recipe.skill !== skillFilter) {
+    // Skill filter (case-insensitive)
+    if (skillFilter !== "All" && recipe.skill?.toLowerCase() !== skillFilter.toLowerCase()) {
       return false;
     }
 
-    // Dietary filter
+    // Dietary filter - must have matching dietary preference
     if (dietaryFilter !== "All") {
-      const dietary = recipe.dietary || [];
+      const dietary = recipe.dietary || recipe.dietaryPreferences || [];
+      // Recipe must have the specific dietary preference in its array
       if (!dietary.includes(dietaryFilter)) {
         return false;
       }
     }
 
-    // Time filter
+    // Time filter - check cookingTime or readyInMinutes
     if (timeFilter !== "All") {
-      const cookTime = recipe.cookingTime || 0;
+      const cookTime = recipe.cookingTime || recipe.readyInMinutes || recipe.prepTime;
+      // Show recipes without time info when "All" is selected
+      // But exclude them when a specific time range is selected
+      if (!cookTime || cookTime === 0) {
+        return false;
+      }
       if (timeFilter === "Under 30 min" && cookTime >= 30) return false;
       if (timeFilter === "30-60 min" && (cookTime < 30 || cookTime > 60)) return false;
       if (timeFilter === "Over 60 min" && cookTime <= 60) return false;
     }
 
     return true;
+  });
+
+  console.log("Filter results:", {
+    totalRecipes: recipes.length,
+    filteredCount: filteredRecipes.length,
+    filters: { skillFilter, dietaryFilter, timeFilter },
+    sampleRecipeSkills: recipes.slice(0, 3).map(r => r.skill)
   });
 
   // Pagination calculations
@@ -205,7 +218,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
     }
 
     // Fetch all recipes once (filtering is done client-side)
-    Promise.all([api("/recipes"), fetch("/api/favorites").then((res) => res.json())])
+    Promise.all([fetch("/api/recipes").then((res) => res.json()), fetch("/api/favorites").then((res) => res.json())])
       .then(([recipesData, favoritesData]) => {
         console.log("Recipes response:", recipesData);
         console.log("Favorites response:", favoritesData);
@@ -413,7 +426,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
 
         {/* Results Count */}
         <p className="text-sm text-muted-foreground">
-          Showing {recipes.length} {recipes.length === 1 ? "recipe" : "recipes"}
+          Showing {filteredRecipes.length} {filteredRecipes.length === 1 ? "recipe" : "recipes"}
         </p>
       </div>
 
@@ -539,7 +552,13 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
         <div className="mt-12 flex items-center justify-center gap-2">
           <Button
             variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            onClick={() => {
+              setCurrentPage((prev) => Math.max(1, prev - 1));
+              setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                document.documentElement.scrollTop = 0;
+              }, 0);
+            }}
             disabled={currentPage === 1}
             className="border-2 disabled:opacity-50"
             style={{
@@ -563,7 +582,13 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
               <Button
                 key={page}
                 variant={currentPage === page ? "default" : "outline"}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => {
+                  setCurrentPage(page);
+                  setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    document.documentElement.scrollTop = 0;
+                  }, 0);
+                }}
                 className="w-10 h-10 p-0 border-2"
                 style={
                   currentPage === page
@@ -578,7 +603,13 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
 
           <Button
             variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            onClick={() => {
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+              setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                document.documentElement.scrollTop = 0;
+              }, 0);
+            }}
             disabled={currentPage === totalPages}
             className="border-2 disabled:opacity-50"
             style={{
