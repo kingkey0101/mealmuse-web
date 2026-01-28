@@ -52,6 +52,11 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-10 text-center"
         >
+          <img 
+            src="/favicon.ico" 
+            alt="MealMuse Logo" 
+            className="h-16 w-16 mx-auto mb-3 drop-shadow-lg"
+          />
           <h1 
             className="font-serif text-4xl font-bold mb-3"
             style={{ color: "#7A8854" }}

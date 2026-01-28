@@ -40,6 +40,20 @@ export default function Home() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-center text-center"
           >
+            {/* Logo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mb-8"
+            >
+              <img 
+                src="/favicon.ico" 
+                alt="MealMuse Logo" 
+                className="h-40 w-40 drop-shadow-2xl"
+              />
+            </motion.div>
+
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
