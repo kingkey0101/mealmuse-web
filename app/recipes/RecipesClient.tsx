@@ -102,11 +102,37 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
     return emojis[cuisine] || emojis['default'];
   };
 
+  // Apply client-side filters
+  const filteredRecipes = recipes.filter(recipe => {
+    // Skill filter
+    if (skillFilter !== 'All' && recipe.skill !== skillFilter) {
+      return false;
+    }
+    
+    // Dietary filter
+    if (dietaryFilter !== 'All') {
+      const dietary = recipe.dietary || [];
+      if (!dietary.includes(dietaryFilter)) {
+        return false;
+      }
+    }
+    
+    // Time filter
+    if (timeFilter !== 'All') {
+      const cookTime = recipe.cookingTime || 0;
+      if (timeFilter === 'Under 30 min' && cookTime >= 30) return false;
+      if (timeFilter === '30-60 min' && (cookTime < 30 || cookTime > 60)) return false;
+      if (timeFilter === 'Over 60 min' && cookTime <= 60) return false;
+    }
+    
+    return true;
+  });
+
   // Pagination calculations
-  const totalPages = Math.ceil(recipes.length / RECIPES_PER_PAGE);
+  const totalPages = Math.ceil(filteredRecipes.length / RECIPES_PER_PAGE);
   const startIndex = (currentPage - 1) * RECIPES_PER_PAGE;
   const endIndex = startIndex + RECIPES_PER_PAGE;
-  const currentRecipes = recipes.slice(startIndex, endIndex);
+  const currentRecipes = filteredRecipes.slice(startIndex, endIndex);
   
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -167,36 +193,9 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
       return;
     }
 
-    // Build query parameters based on filters
-    const queryParams = new URLSearchParams();
-    
-    if (skillFilter !== 'All') {
-      queryParams.append('skill', skillFilter.toLowerCase());
-    }
-    
-    if (dietaryFilter !== 'All') {
-      queryParams.append('dietaryPreferences', dietaryFilter);
-    }
-    
-    if (timeFilter !== 'All') {
-      if (timeFilter === 'Under 30 min') {
-        queryParams.append('cookingTime[$lte]', '30');
-      } else if (timeFilter === '30-60 min') {
-        queryParams.append('cookingTime[$gte]', '30');
-        queryParams.append('cookingTime[$lte]', '60');
-      } else if (timeFilter === 'Over 60 min') {
-        queryParams.append('cookingTime[$gt]', '60');
-      }
-    }
-    
-    const queryString = queryParams.toString();
-    const endpoint = queryString ? `/recipes?${queryString}` : '/recipes';
-
-    setLoading(true);
-    
-    // Fetch recipes and favorites in parallel
+    // Fetch all recipes once (filtering is done client-side)
     Promise.all([
-      api(endpoint),
+      api("/recipes"),
       fetch("/api/favorites").then(res => res.json())
     ])
       .then(([recipesData, favoritesData]) => {
@@ -211,7 +210,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
         setError(err.message);
         setLoading(false);
       });
-  }, [session, skillFilter, dietaryFilter, timeFilter]);
+  }, [session]);
 
   if (loading) {
     return (
