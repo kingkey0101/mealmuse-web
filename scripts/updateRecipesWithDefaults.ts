@@ -32,14 +32,22 @@ async function updateRecipes() {
         const title = (recipe.title || "").toLowerCase();
         const ingredientsText = JSON.stringify(recipe.ingredients || []).toLowerCase();
         const allText = title + " " + ingredientsText;
-        
+
         // Check for animal products - expanded list
-        const hasMeat = allText.match(/\b(chicken|beef|pork|meat|bacon|sausage|lamb|turkey|duck|ham|pancetta|prosciutto|chorizo|salami|pepperoni|steak|ribs|meatball|bulgogi|bbq|brisket)\b/);
-        const hasFish = allText.match(/\b(fish|salmon|tuna|shrimp|prawn|seafood|cod|halibut|tilapia|scampi|crab|lobster|anchov)\b/);
-        const hasDairy = allText.match(/\b(milk|cheese|cream|butter|yogurt|parmesan|mozzarella|cheddar|feta|ricotta|brie|gouda|swiss)\b/);
+        const hasMeat = allText.match(
+          /\b(chicken|beef|pork|meat|bacon|sausage|lamb|turkey|duck|ham|pancetta|prosciutto|chorizo|salami|pepperoni|steak|ribs|meatball|bulgogi|bbq|brisket)\b/
+        );
+        const hasFish = allText.match(
+          /\b(fish|salmon|tuna|shrimp|prawn|seafood|cod|halibut|tilapia|scampi|crab|lobster|anchov)\b/
+        );
+        const hasDairy = allText.match(
+          /\b(milk|cheese|cream|butter|yogurt|parmesan|mozzarella|cheddar|feta|ricotta|brie|gouda|swiss)\b/
+        );
         const hasEggs = allText.match(/\b(egg|omelette|omelet|carbonara|frittata|quiche)\b/);
-        const hasGluten = allText.match(/\b(wheat|flour|bread|pasta|noodle|ramen|spaghetti|linguine|penne|fettuccine|macaroni|couscous|bulgur|seitan|crouton|breading)\b/);
-        
+        const hasGluten = allText.match(
+          /\b(wheat|flour|bread|pasta|noodle|ramen|spaghetti|linguine|penne|fettuccine|macaroni|couscous|bulgur|seitan|crouton|breading)\b/
+        );
+
         // Vegan: no animal products at all
         if (!hasMeat && !hasFish && !hasDairy && !hasEggs) {
           dietary.push("Vegan");
@@ -49,27 +57,29 @@ async function updateRecipes() {
         else if (!hasMeat && !hasFish) {
           dietary.push("Vegetarian");
         }
-        
+
         // Gluten-Free: no wheat/bread/pasta
         if (!hasGluten) {
           dietary.push("Gluten-Free");
         }
-        
+
         // Dairy-Free: no milk/cheese/cream
         if (!hasDairy) {
           dietary.push("Dairy-Free");
         }
-        
+
         // Keto: Must have protein (meat/fish/eggs) AND no high-carb foods
         // Be conservative - only tag if clearly keto-friendly
-        const hasHighCarb = allText.match(/\b(pasta|rice|bread|potato|noodle|sugar|honey|sweet|cake|cookie|fruit|bean|lentil)\b/);
+        const hasHighCarb = allText.match(
+          /\b(pasta|rice|bread|potato|noodle|sugar|honey|sweet|cake|cookie|fruit|bean|lentil)\b/
+        );
         if (!hasHighCarb && (hasMeat || hasFish || hasEggs) && !hasGluten) {
           // Only add keto if it's clearly low-carb with protein
           if (allText.match(/\b(salmon|steak|chicken|beef|bacon|egg|avocado|cheese)\b/)) {
             dietary.push("Keto");
           }
         }
-        
+
         // Paleo: Meat/fish/eggs + veggies, no dairy/grains/legumes/processed
         // Very conservative - only clear paleo dishes
         const hasGrains = allText.match(/\b(wheat|rice|oat|grain|pasta|bread|corn|quinoa)\b/);
@@ -81,29 +91,26 @@ async function updateRecipes() {
             dietary.push("Paleo");
           }
         }
-        
+
         updates.dietary = dietary;
       }
 
       // Add cooking time if missing (reasonable estimates)
       if (!recipe.cookingTime && !recipe.readyInMinutes) {
         let estimatedTime = 30; // default
-        
+
         // Estimate based on skill level
         const skill = recipe.skill?.toLowerCase();
         if (skill === "beginner") estimatedTime = 20;
         if (skill === "intermediate") estimatedTime = 35;
         if (skill === "advanced") estimatedTime = 50;
-        
+
         updates.cookingTime = estimatedTime;
       }
 
       // Update if we have changes
       if (Object.keys(updates).length > 0) {
-        await recipesCollection.updateOne(
-          { _id: recipe._id },
-          { $set: updates }
-        );
+        await recipesCollection.updateOne({ _id: recipe._id }, { $set: updates });
         console.log(`Updated recipe: ${recipe.title}`);
       }
     }

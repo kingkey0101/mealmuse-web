@@ -149,7 +149,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
     totalRecipes: recipes.length,
     filteredCount: filteredRecipes.length,
     filters: { skillFilter, dietaryFilter, timeFilter },
-    sampleRecipeSkills: recipes.slice(0, 3).map(r => r.skill)
+    sampleRecipeSkills: recipes.slice(0, 3).map((r) => r.skill),
   });
 
   // Pagination calculations
@@ -218,7 +218,10 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
     }
 
     // Fetch all recipes once (filtering is done client-side)
-    Promise.all([fetch("/api/recipes").then((res) => res.json()), fetch("/api/favorites").then((res) => res.json())])
+    Promise.all([
+      fetch("/api/recipes").then((res) => res.json()),
+      fetch("/api/favorites").then((res) => res.json()),
+    ])
       .then(([recipesData, favoritesData]) => {
         console.log("Recipes response:", recipesData);
         console.log("Favorites response:", favoritesData);

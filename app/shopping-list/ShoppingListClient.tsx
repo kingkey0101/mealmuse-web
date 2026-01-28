@@ -150,9 +150,7 @@ export default function ShoppingListClient() {
           <h1 className="text-3xl font-bold" style={{ color: "#2D2D2D" }}>
             Shopping List
           </h1>
-          <p className="mt-2 text-muted-foreground">
-            Keep track of ingredients you need to buy
-          </p>
+          <p className="mt-2 text-muted-foreground">Keep track of ingredients you need to buy</p>
         </div>
         {checkedItems.length > 0 && (
           <Button
@@ -215,9 +213,7 @@ export default function ShoppingListClient() {
       {/* Shopping List */}
       <Card className="border-2" style={{ borderColor: "#A28F7A" }}>
         <CardHeader style={{ backgroundColor: "#E5D1DA" }}>
-          <CardTitle style={{ color: "#2D2D2D" }}>
-            Items to Buy ({uncheckedItems.length})
-          </CardTitle>
+          <CardTitle style={{ color: "#2D2D2D" }}>Items to Buy ({uncheckedItems.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           {items.length === 0 ? (

@@ -1,76 +1,108 @@
 <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background gradient -->
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#0D5F3A;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#1a8a52;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#E8A628;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f5b844;stop-opacity:1" />
+    <linearGradient id="cardGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8A628;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#f5b844;stop-opacity:0.9" />
+    </linearGradient>
+    <linearGradient id="cardGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7A8854;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#9ab06f;stop-opacity:0.9" />
+    </linearGradient>
+    <linearGradient id="cardGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E5D1DA;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#f0e0e9;stop-opacity:0.9" />
     </linearGradient>
   </defs>
   
   <!-- Main background -->
   <rect width="1200" height="630" fill="url(#bgGradient)"/>
   
-  <!-- Decorative circles -->
-  <circle cx="200" cy="150" r="120" fill="#7A8854" opacity="0.15"/>
-  <circle cx="1000" cy="500" r="150" fill="#E8A628" opacity="0.1"/>
+  <!-- Decorative elements -->
+  <circle cx="1100" cy="100" r="180" fill="#7A8854" opacity="0.1"/>
+  <circle cx="100" cy="550" r="150" fill="#E8A628" opacity="0.08"/>
   
-  <!-- Main content area -->
+  <!-- Left side: Featured image area -->
   <g>
-    <!-- Logo/Icon area -->
-    <circle cx="150" cy="315" r="100" fill="url(#accentGradient)" opacity="0.95"/>
+    <!-- Image background circle -->
+    <circle cx="220" cy="315" r="140" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
     
-    <!-- Fork and spoon icon -->
-    <g transform="translate(150, 315)">
-      <!-- Fork -->
-      <rect x="-30" y="-40" width="8" height="70" fill="white" rx="4"/>
-      <circle cx="-26" cy="-45" r="6" fill="white"/>
-      <rect x="-45" y="-30" width="8" height="35" fill="white" rx="4"/>
-      <rect x="-30" y="-30" width="8" height="35" fill="white" rx="4"/>
-      <rect x="-15" y="-30" width="8" height="35" fill="white" rx="4"/>
+    <!-- Cooking illustration -->
+    <g transform="translate(220, 315)">
+      <!-- Pot -->
+      <ellipse cx="0" cy="0" rx="50" ry="45" fill="#E8A628"/>
+      <ellipse cx="0" cy="-45" rx="50" ry="12" fill="#f5b844"/>
+      <!-- Lid -->
+      <path d="M -55 -40 Q -55 -60 0 -65 Q 55 -60 55 -40" fill="#A28F7A" opacity="0.8"/>
+      <!-- Handle -->
+      <rect x="50" y="-30" width="15" height="40" rx="7" fill="#A28F7A"/>
+      
+      <!-- Steam -->
+      <path d="M -20 -70 Q -25 -85 -20 -95" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 0 -75 Q -3 -90 0 -100" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 20 -70 Q 23 -85 20 -95" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
       
       <!-- Spoon -->
-      <path d="M 20 -45 Q 30 -60 35 -50 Q 30 -35 20 -30 L 20 20 L 28 20 L 28 25 L 20 25 L 20 30 L 12 30 L 12 -30 Z" fill="white"/>
+      <g transform="translate(40, 30)">
+        <rect x="-5" y="0" width="10" height="40" fill="#A28F7A" rx="5"/>
+        <ellipse cx="0" cy="-8" rx="12" ry="8" fill="#A28F7A"/>
+      </g>
     </g>
   </g>
   
-  <!-- Main text -->
-  <text x="350" y="220" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="white" letter-spacing="2">
-    MealMuse
-  </text>
-  
-  <!-- Tagline -->
-  <text x="350" y="290" font-family="Arial, sans-serif" font-size="32" fill="#E5D1DA" letter-spacing="0.5">
-    Your AI-Powered Recipe Assistant
-  </text>
-  
-  <!-- Features bar -->
+  <!-- Right side: Content -->
   <g>
-    <!-- Feature 1 -->
-    <circle cx="380" cy="380" r="8" fill="#E8A628"/>
-    <text x="410" y="390" font-family="Arial, sans-serif" font-size="24" fill="white">
-      Discover Recipes
+    <!-- Main title -->
+    <text x="450" y="140" font-family="'Segoe UI', Arial, sans-serif" font-size="72" font-weight="700" fill="white" letter-spacing="-1">
+      MealMuse
     </text>
     
-    <!-- Feature 2 -->
-    <circle cx="380" cy="450" r="8" fill="#E8A628"/>
-    <text x="410" y="460" font-family="Arial, sans-serif" font-size="24" fill="white">
-      Create & Share
+    <!-- Subtitle -->
+    <text x="450" y="200" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#E8A628" font-weight="500" letter-spacing="0.5">
+      AI-Powered Recipe Assistant
     </text>
     
-    <!-- Feature 3 -->
-    <circle cx="380" cy="520" r="8" fill="#E8A628"/>
-    <text x="410" y="530" font-family="Arial, sans-serif" font-size="24" fill="white">
-      AI Chef Chat
+    <!-- Divider line -->
+    <line x1="450" y1="225" x2="1100" y2="225" stroke="#E8A628" stroke-width="3" opacity="0.6"/>
+    
+    <!-- Feature cards -->
+    <g>
+      <!-- Card 1: Discover -->
+      <rect x="450" y="260" width="200" height="110" rx="12" fill="url(#cardGradient1)"/>
+      <text x="550" y="295" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">🍳 Discover</text>
+      <text x="550" y="335" font-family="Arial, sans-serif" font-size="13" fill="white" text-anchor="middle" opacity="0.9">Browse curated</text>
+      <text x="550" y="355" font-family="Arial, sans-serif" font-size="13" fill="white" text-anchor="middle" opacity="0.9">recipes</text>
+      
+      <!-- Card 2: Create -->
+      <rect x="680" y="260" width="200" height="110" rx="12" fill="url(#cardGradient2)"/>
+      <text x="780" y="295" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">✍️ Create</text>
+      <text x="780" y="335" font-family="Arial, sans-serif" font-size="13" fill="white" text-anchor="middle" opacity="0.9">Share your own</text>
+      <text x="780" y="355" font-family="Arial, sans-serif" font-size="13" fill="white" text-anchor="middle" opacity="0.9">recipes</text>
+      
+      <!-- Card 3: Chat -->
+      <rect x="910" y="260" width="190" height="110" rx="12" fill="url(#cardGradient3)"/>
+      <text x="1005" y="295" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#0D5F3A" text-anchor="middle">💬 AI Chef</text>
+      <text x="1005" y="335" font-family="Arial, sans-serif" font-size="13" fill="#0D5F3A" text-anchor="middle" opacity="0.9">Get cooking tips &</text>
+      <text x="1005" y="355" font-family="Arial, sans-serif" font-size="13" fill="#0D5F3A" text-anchor="middle" opacity="0.9">advice</text>
+    </g>
+    
+    <!-- Bottom CTA area -->
+    <rect x="450" y="410" width="650" height="140" rx="16" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+    
+    <text x="775" y="450" font-family="'Segoe UI', Arial, sans-serif" font-size="32" font-weight="600" fill="white" text-anchor="middle">
+      Ready to Cook?
+    </text>
+    
+    <text x="775" y="490" font-family="'Segoe UI', Arial, sans-serif" font-size="22" fill="#E5D1DA" text-anchor="middle">
+      Start exploring recipes today
+    </text>
+    
+    <!-- Domain -->
+    <text x="775" y="535" font-family="'Segoe UI', Arial, sans-serif" font-size="20" font-weight="500" fill="#E8A628" text-anchor="middle">
+      mymealmuse.com
     </text>
   </g>
-  
-  <!-- Domain URL -->
-  <rect x="250" y="570" width="700" height="45" fill="rgba(255,255,255,0.1)" rx="8"/>
-  <text x="600" y="603" font-family="Arial, sans-serif" font-size="28" fill="white" text-anchor="middle" font-weight="500">
-    mymealmuse.com
-  </text>
 </svg>

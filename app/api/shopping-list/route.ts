@@ -14,9 +14,7 @@ export async function GET(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
 
-    const shoppingList = await db
-      .collection("shoppingLists")
-      .findOne({ userId: session.user.id });
+    const shoppingList = await db.collection("shoppingLists").findOne({ userId: session.user.id });
 
     return NextResponse.json(
       {
