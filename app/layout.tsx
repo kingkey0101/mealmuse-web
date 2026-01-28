@@ -23,23 +23,23 @@ export const metadata: Metadata = {
   openGraph: {
     title: "MealMuse",
     description: "Your AI-powered recipe assistant - Discover, create, and share delicious recipes",
-    url: "https://mealmuse.com",
+    url: "https://mymealmuse.com",
     siteName: "MealMuse",
     images: [
       {
-        url: "/favicon.ico",
-        width: 192,
-        height: 192,
-        alt: "MealMuse Logo",
+        url: "https://mymealmuse.com/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "MealMuse - AI-Powered Recipe Assistant",
       },
     ],
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "MealMuse",
     description: "Your AI-powered recipe assistant",
-    images: ["/favicon.ico"],
+    images: ["https://mymealmuse.com/og-image.svg"],
   },
 };
 

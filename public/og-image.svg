@@ -1,0 +1,76 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D5F3A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a8a52;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8A628;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5b844;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="200" cy="150" r="120" fill="#7A8854" opacity="0.15"/>
+  <circle cx="1000" cy="500" r="150" fill="#E8A628" opacity="0.1"/>
+  
+  <!-- Main content area -->
+  <g>
+    <!-- Logo/Icon area -->
+    <circle cx="150" cy="315" r="100" fill="url(#accentGradient)" opacity="0.95"/>
+    
+    <!-- Fork and spoon icon -->
+    <g transform="translate(150, 315)">
+      <!-- Fork -->
+      <rect x="-30" y="-40" width="8" height="70" fill="white" rx="4"/>
+      <circle cx="-26" cy="-45" r="6" fill="white"/>
+      <rect x="-45" y="-30" width="8" height="35" fill="white" rx="4"/>
+      <rect x="-30" y="-30" width="8" height="35" fill="white" rx="4"/>
+      <rect x="-15" y="-30" width="8" height="35" fill="white" rx="4"/>
+      
+      <!-- Spoon -->
+      <path d="M 20 -45 Q 30 -60 35 -50 Q 30 -35 20 -30 L 20 20 L 28 20 L 28 25 L 20 25 L 20 30 L 12 30 L 12 -30 Z" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Main text -->
+  <text x="350" y="220" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="white" letter-spacing="2">
+    MealMuse
+  </text>
+  
+  <!-- Tagline -->
+  <text x="350" y="290" font-family="Arial, sans-serif" font-size="32" fill="#E5D1DA" letter-spacing="0.5">
+    Your AI-Powered Recipe Assistant
+  </text>
+  
+  <!-- Features bar -->
+  <g>
+    <!-- Feature 1 -->
+    <circle cx="380" cy="380" r="8" fill="#E8A628"/>
+    <text x="410" y="390" font-family="Arial, sans-serif" font-size="24" fill="white">
+      Discover Recipes
+    </text>
+    
+    <!-- Feature 2 -->
+    <circle cx="380" cy="450" r="8" fill="#E8A628"/>
+    <text x="410" y="460" font-family="Arial, sans-serif" font-size="24" fill="white">
+      Create & Share
+    </text>
+    
+    <!-- Feature 3 -->
+    <circle cx="380" cy="520" r="8" fill="#E8A628"/>
+    <text x="410" y="530" font-family="Arial, sans-serif" font-size="24" fill="white">
+      AI Chef Chat
+    </text>
+  </g>
+  
+  <!-- Domain URL -->
+  <rect x="250" y="570" width="700" height="45" fill="rgba(255,255,255,0.1)" rx="8"/>
+  <text x="600" y="603" font-family="Arial, sans-serif" font-size="28" fill="white" text-anchor="middle" font-weight="500">
+    mymealmuse.com
+  </text>
+</svg>
