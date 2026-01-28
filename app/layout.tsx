@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: "MealMuse",
     images: [
       {
-        url: "https://mymealmuse.com/og-image.svg",
+        url: "https://mymealmuse.com/api/og",
         width: 1200,
         height: 630,
         alt: "MealMuse - AI-Powered Recipe Assistant",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MealMuse",
     description: "Your AI-powered recipe assistant",
-    images: ["https://mymealmuse.com/og-image.svg"],
+    images: ["https://mymealmuse.com/api/og"],
   },
 };
 
