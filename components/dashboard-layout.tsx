@@ -9,7 +9,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <MobileSidebarToggle />
 
       <div className="lg:pl-64">
-        <main className="py-10">{children}</main>
+        <main className="py-10 pt-20 lg:pt-10">{children}</main>
       </div>
     </div>
   );

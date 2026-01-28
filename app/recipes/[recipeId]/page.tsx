@@ -8,6 +8,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import type { Metadata } from "next";
+import { RecipeActions } from "./RecipeActions";
 
 interface Recipe {
   _id: string;
@@ -331,16 +332,7 @@ export default async function RecipeDetailPage(props: {
             </Card>
 
             {/* Action Buttons (if owner) */}
-            {isOwner && (
-              <div className="flex gap-3">
-                <Button className="flex-1" style={{ backgroundColor: "#7A8854", color: "white" }}>
-                  Edit Recipe
-                </Button>
-                <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-50">
-                  Delete
-                </Button>
-              </div>
-            )}
+            {isOwner && <RecipeActions recipeId={recipeId} />}
           </div>
 
           {/* Right Column - Instructions */}

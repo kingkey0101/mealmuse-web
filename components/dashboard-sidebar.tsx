@@ -326,8 +326,9 @@ export function MobileSidebarToggle() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 right-4 z-50 p-3 rounded-lg shadow-lg transition-all hover:opacity-90"
         style={{ backgroundColor: "#0D5F3A" }}
+        aria-label={isOpen ? "Close menu" : "Open menu"}
       >
         <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           {isOpen ? (
