@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     await db.collection("shoppingLists").updateOne(
       { userId: session.user.id },
       {
-        $push: { items: newItem },
+        $push: { items: newItem } as any,
         $setOnInsert: {
           userId: session.user.id,
           createdAt: new Date(),
