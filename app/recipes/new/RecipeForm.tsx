@@ -24,7 +24,8 @@ export default function RecipeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const [formData, setFormData] = useState({    title: "",
+  const [formData, setFormData] = useState({
+    title: "",
     cuisine: "",
     skill: "Beginner",
     dietary: [] as string[],
@@ -132,10 +133,7 @@ export default function RecipeForm() {
     }
   };
 
-  const handleInputChange = (
-    field: keyof typeof formData,
-    value: string
-  ) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
@@ -166,12 +164,7 @@ export default function RecipeForm() {
             className="gap-2 pl-2 mb-4 hover:bg-transparent"
             style={{ color: "#0D5F3A" }}
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -213,9 +206,7 @@ export default function RecipeForm() {
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="e.g., Classic Italian Carbonara"
                 className={`mt-1.5 ${
-                  errors.title
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
+                  errors.title ? "border-red-500 focus-visible:ring-red-500" : ""
                 }`}
               />
               {errors.title && (
@@ -224,12 +215,7 @@ export default function RecipeForm() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-1.5 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -257,9 +243,7 @@ export default function RecipeForm() {
                 onChange={(e) => handleInputChange("cuisine", e.target.value)}
                 placeholder="e.g., Italian, Mexican (comma-separated for multiple)"
                 className={`mt-1.5 ${
-                  errors.cuisine
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
+                  errors.cuisine ? "border-red-500 focus-visible:ring-red-500" : ""
                 }`}
               />
               {errors.cuisine && (
@@ -268,12 +252,7 @@ export default function RecipeForm() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-1.5 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -300,9 +279,7 @@ export default function RecipeForm() {
                 value={formData.skill}
                 onChange={(e) => handleInputChange("skill", e.target.value)}
                 className={`mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                  errors.skill
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
+                  errors.skill ? "border-red-500 focus-visible:ring-red-500" : ""
                 }`}
               >
                 <option value="Beginner">Beginner</option>
@@ -315,12 +292,7 @@ export default function RecipeForm() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-1.5 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -339,31 +311,29 @@ export default function RecipeForm() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: 0.35 }}
             >
-              <Label style={{ color: "#7A8854" }}>
-                Dietary Preferences (Optional)
-              </Label>
-              <p className="text-xs text-muted-foreground mt-1 mb-2">
-                Select all that apply
-              </p>
+              <Label style={{ color: "#7A8854" }}>Dietary Preferences (Optional)</Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-2">Select all that apply</p>
               <div className="grid grid-cols-2 gap-3">
-                {['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto', 'Paleo'].map((diet) => (
-                  <label
-                    key={diet}
-                    className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.dietary.includes(diet)}
-                      onChange={() => handleDietaryChange(diet)}
-                      className="w-4 h-4 rounded border-2 cursor-pointer"
-                      style={{ 
-                        accentColor: "#7A8854",
-                        borderColor: "#A28F7A"
-                      }}
-                    />
-                    <span className="text-sm">{diet}</span>
-                  </label>
-                ))}
+                {["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Keto", "Paleo"].map(
+                  (diet) => (
+                    <label
+                      key={diet}
+                      className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.dietary.includes(diet)}
+                        onChange={() => handleDietaryChange(diet)}
+                        className="w-4 h-4 rounded border-2 cursor-pointer"
+                        style={{
+                          accentColor: "#7A8854",
+                          borderColor: "#A28F7A",
+                        }}
+                      />
+                      <span className="text-sm">{diet}</span>
+                    </label>
+                  )
+                )}
               </div>
             </motion.div>
 
@@ -376,9 +346,7 @@ export default function RecipeForm() {
               <Label htmlFor="cookingTime" style={{ color: "#7A8854" }}>
                 Cooking Time (Optional)
               </Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Estimated time in minutes
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Estimated time in minutes</p>
               <Input
                 id="cookingTime"
                 type="number"
@@ -399,21 +367,15 @@ export default function RecipeForm() {
               <Label htmlFor="ingredients" style={{ color: "#7A8854" }}>
                 Ingredients <span className="text-red-500">*</span>
               </Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Enter one ingredient per line
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Enter one ingredient per line</p>
               <Textarea
                 id="ingredients"
                 value={formData.ingredients}
-                onChange={(e) =>
-                  handleInputChange("ingredients", e.target.value)
-                }
+                onChange={(e) => handleInputChange("ingredients", e.target.value)}
                 placeholder="2 cups all-purpose flour&#10;1 cup sugar&#10;3 large eggs"
                 rows={6}
                 className={`mt-1.5 ${
-                  errors.ingredients
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
+                  errors.ingredients ? "border-red-500 focus-visible:ring-red-500" : ""
                 }`}
               />
               {errors.ingredients && (
@@ -422,12 +384,7 @@ export default function RecipeForm() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-1.5 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -449,9 +406,7 @@ export default function RecipeForm() {
               <Label htmlFor="steps" style={{ color: "#7A8854" }}>
                 Cooking Steps <span className="text-red-500">*</span>
               </Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Enter one step per line
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Enter one step per line</p>
               <Textarea
                 id="steps"
                 value={formData.steps}
@@ -459,9 +414,7 @@ export default function RecipeForm() {
                 placeholder="Preheat oven to 350°F&#10;Mix dry ingredients in a large bowl&#10;Add wet ingredients and stir until combined"
                 rows={8}
                 className={`mt-1.5 ${
-                  errors.steps
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
+                  errors.steps ? "border-red-500 focus-visible:ring-red-500" : ""
                 }`}
               />
               {errors.steps && (
@@ -470,12 +423,7 @@ export default function RecipeForm() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-1.5 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -497,9 +445,7 @@ export default function RecipeForm() {
               <Label htmlFor="equipment" style={{ color: "#7A8854" }}>
                 Equipment Needed <span className="text-red-500">*</span>
               </Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Enter one item per line
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Enter one item per line</p>
               <Textarea
                 id="equipment"
                 value={formData.equipment}
@@ -507,9 +453,7 @@ export default function RecipeForm() {
                 placeholder="Large mixing bowl&#10;Whisk&#10;9-inch baking pan"
                 rows={5}
                 className={`mt-1.5 ${
-                  errors.equipment
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
+                  errors.equipment ? "border-red-500 focus-visible:ring-red-500" : ""
                 }`}
               />
               {errors.equipment && (
@@ -518,12 +462,7 @@ export default function RecipeForm() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-1.5 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

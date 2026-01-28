@@ -11,9 +11,17 @@ import { motion } from "framer-motion";
 
 const RECIPES_PER_PAGE = 9;
 
-const SKILL_LEVELS = ['All', 'Beginner', 'Intermediate', 'Advanced'];
-const DIETARY_PREFERENCES = ['All', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto', 'Paleo'];
-const COOKING_TIMES = ['All', 'Under 30 min', '30-60 min', 'Over 60 min'];
+const SKILL_LEVELS = ["All", "Beginner", "Intermediate", "Advanced"];
+const DIETARY_PREFERENCES = [
+  "All",
+  "Vegetarian",
+  "Vegan",
+  "Gluten-Free",
+  "Dairy-Free",
+  "Keto",
+  "Paleo",
+];
+const COOKING_TIMES = ["All", "Under 30 min", "30-60 min", "Over 60 min"];
 
 export default function RecipesClient({ initialPage = 1 }: { initialPage?: number }) {
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -22,109 +30,112 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [togglingFavorite, setTogglingFavorite] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [skillFilter, setSkillFilter] = useState('All');
-  const [dietaryFilter, setDietaryFilter] = useState('All');
-  const [timeFilter, setTimeFilter] = useState('All');
+  const [skillFilter, setSkillFilter] = useState("All");
+  const [dietaryFilter, setDietaryFilter] = useState("All");
+  const [timeFilter, setTimeFilter] = useState("All");
   const { data: session } = useSession();
 
   // Generate gradient background based on cuisine type
   const getRecipeGradient = (recipe: any) => {
     const cuisines = Array.isArray(recipe.cuisine) ? recipe.cuisine : [recipe.cuisine];
-    const cuisine = cuisines[0]?.toLowerCase() || 'general';
-    
+    const cuisine = cuisines[0]?.toLowerCase() || "general";
+
     const gradients: Record<string, string> = {
-      'italian': 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
-      'mexican': 'linear-gradient(135deg, #F39C12 0%, #E67E22 100%)',
-      'chinese': 'linear-gradient(135deg, #E74C3C 0%, #D35400 100%)',
-      'japanese': 'linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%)',
-      'indian': 'linear-gradient(135deg, #F39C12 0%, #D68910 100%)',
-      'thai': 'linear-gradient(135deg, #16A085 0%, #1ABC9C 100%)',
-      'french': 'linear-gradient(135deg, #5F6F81 0%, #34495E 100%)',
-      'american': 'linear-gradient(135deg, #E67E22 0%, #D35400 100%)',
-      'mediterranean': 'linear-gradient(135deg, #3498DB 0%, #2980B9 100%)',
-      'default': 'linear-gradient(135deg, #7A8854 0%, #5A6844 100%)'
+      italian: "linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)",
+      mexican: "linear-gradient(135deg, #F39C12 0%, #E67E22 100%)",
+      chinese: "linear-gradient(135deg, #E74C3C 0%, #D35400 100%)",
+      japanese: "linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%)",
+      indian: "linear-gradient(135deg, #F39C12 0%, #D68910 100%)",
+      thai: "linear-gradient(135deg, #16A085 0%, #1ABC9C 100%)",
+      french: "linear-gradient(135deg, #5F6F81 0%, #34495E 100%)",
+      american: "linear-gradient(135deg, #E67E22 0%, #D35400 100%)",
+      mediterranean: "linear-gradient(135deg, #3498DB 0%, #2980B9 100%)",
+      default: "linear-gradient(135deg, #7A8854 0%, #5A6844 100%)",
     };
-    
-    return gradients[cuisine] || gradients['default'];
+
+    return gradients[cuisine] || gradients["default"];
   };
 
   // Get emoji for recipe based on title
   const getCuisineEmoji = (recipe: any) => {
     const title = recipe.title.toLowerCase();
-    
+
     // Match specific food items in recipe titles
-    if (title.includes('omelette') || title.includes('omelet') || title.includes('egg')) return '🍳';
-    if (title.includes('bulgogi') || title.includes('stir fry') || title.includes('stir-fry')) return '🥘';
-    if (title.includes('salad')) return '🥗';
-    if (title.includes('bbq') || title.includes('chicken')) return '🍗';
-    if (title.includes('falafel')) return '🧆';
-    if (title.includes('wrap') && !title.includes('falafel')) return '🌯';
-    if (title.includes('shakshuka')) return '🍅';
-    if (title.includes('veggie') || title.includes('vegetable')) return '🥬';
-    if (title.includes('ramen') || title.includes('noodle')) return '🍜';
-    if (title.includes('salmon')) return '🍣';
-    if (title.includes('fish') || title.includes('tuna') || title.includes('seafood')) return '🐟';
-    if (title.includes('pasta') || title.includes('spaghetti') || title.includes('linguine')) return '🍝';
-    if (title.includes('pizza')) return '🍕';
-    if (title.includes('burger')) return '🍔';
-    if (title.includes('taco') || title.includes('burrito')) return '🌮';
-    if (title.includes('sushi') || title.includes('poke')) return '🍱';
-    if (title.includes('curry')) return '🍛';
-    if (title.includes('rice')) return '🍚';
-    if (title.includes('soup') || title.includes('stew')) return '🍲';
-    if (title.includes('steak') || title.includes('beef')) return '🥩';
-    if (title.includes('sandwich')) return '🥪';
-    if (title.includes('shrimp') || title.includes('prawn')) return '🍤';
-    if (title.includes('bread') || title.includes('toast')) return '🍞';
-    if (title.includes('cake') || title.includes('dessert')) return '🍰';
-    if (title.includes('pie')) return '🥧';
-    if (title.includes('pancake') || title.includes('waffle')) return '🥞';
-    if (title.includes('coffee') || title.includes('espresso')) return '☕';
-    if (title.includes('smoothie') || title.includes('juice')) return '🥤';
-    
+    if (title.includes("omelette") || title.includes("omelet") || title.includes("egg"))
+      return "🍳";
+    if (title.includes("bulgogi") || title.includes("stir fry") || title.includes("stir-fry"))
+      return "🥘";
+    if (title.includes("salad")) return "🥗";
+    if (title.includes("bbq") || title.includes("chicken")) return "🍗";
+    if (title.includes("falafel")) return "🧆";
+    if (title.includes("wrap") && !title.includes("falafel")) return "🌯";
+    if (title.includes("shakshuka")) return "🍅";
+    if (title.includes("veggie") || title.includes("vegetable")) return "🥬";
+    if (title.includes("ramen") || title.includes("noodle")) return "🍜";
+    if (title.includes("salmon")) return "🍣";
+    if (title.includes("fish") || title.includes("tuna") || title.includes("seafood")) return "🐟";
+    if (title.includes("pasta") || title.includes("spaghetti") || title.includes("linguine"))
+      return "🍝";
+    if (title.includes("pizza")) return "🍕";
+    if (title.includes("burger")) return "🍔";
+    if (title.includes("taco") || title.includes("burrito")) return "🌮";
+    if (title.includes("sushi") || title.includes("poke")) return "🍱";
+    if (title.includes("curry")) return "🍛";
+    if (title.includes("rice")) return "🍚";
+    if (title.includes("soup") || title.includes("stew")) return "🍲";
+    if (title.includes("steak") || title.includes("beef")) return "🥩";
+    if (title.includes("sandwich")) return "🥪";
+    if (title.includes("shrimp") || title.includes("prawn")) return "🍤";
+    if (title.includes("bread") || title.includes("toast")) return "🍞";
+    if (title.includes("cake") || title.includes("dessert")) return "🍰";
+    if (title.includes("pie")) return "🥧";
+    if (title.includes("pancake") || title.includes("waffle")) return "🥞";
+    if (title.includes("coffee") || title.includes("espresso")) return "☕";
+    if (title.includes("smoothie") || title.includes("juice")) return "🥤";
+
     // Fall back to cuisine-based emoji
     const cuisines = Array.isArray(recipe.cuisine) ? recipe.cuisine : [recipe.cuisine];
-    const cuisine = cuisines[0]?.toLowerCase() || 'general';
-    
+    const cuisine = cuisines[0]?.toLowerCase() || "general";
+
     const emojis: Record<string, string> = {
-      'italian': '🍝',
-      'mexican': '🌮',
-      'chinese': '🥢',
-      'japanese': '🍱',
-      'indian': '🍛',
-      'thai': '🌶️',
-      'french': '🥐',
-      'american': '🍔',
-      'mediterranean': '🫒',
-      'default': '🍳'
+      italian: "🍝",
+      mexican: "🌮",
+      chinese: "🥢",
+      japanese: "🍱",
+      indian: "🍛",
+      thai: "🌶️",
+      french: "🥐",
+      american: "🍔",
+      mediterranean: "🫒",
+      default: "🍳",
     };
-    
-    return emojis[cuisine] || emojis['default'];
+
+    return emojis[cuisine] || emojis["default"];
   };
 
   // Apply client-side filters
-  const filteredRecipes = recipes.filter(recipe => {
+  const filteredRecipes = recipes.filter((recipe) => {
     // Skill filter
-    if (skillFilter !== 'All' && recipe.skill !== skillFilter) {
+    if (skillFilter !== "All" && recipe.skill !== skillFilter) {
       return false;
     }
-    
+
     // Dietary filter
-    if (dietaryFilter !== 'All') {
+    if (dietaryFilter !== "All") {
       const dietary = recipe.dietary || [];
       if (!dietary.includes(dietaryFilter)) {
         return false;
       }
     }
-    
+
     // Time filter
-    if (timeFilter !== 'All') {
+    if (timeFilter !== "All") {
       const cookTime = recipe.cookingTime || 0;
-      if (timeFilter === 'Under 30 min' && cookTime >= 30) return false;
-      if (timeFilter === '30-60 min' && (cookTime < 30 || cookTime > 60)) return false;
-      if (timeFilter === 'Over 60 min' && cookTime <= 60) return false;
+      if (timeFilter === "Under 30 min" && cookTime >= 30) return false;
+      if (timeFilter === "30-60 min" && (cookTime < 30 || cookTime > 60)) return false;
+      if (timeFilter === "Over 60 min" && cookTime <= 60) return false;
     }
-    
+
     return true;
   });
 
@@ -133,7 +144,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const startIndex = (currentPage - 1) * RECIPES_PER_PAGE;
   const endIndex = startIndex + RECIPES_PER_PAGE;
   const currentRecipes = filteredRecipes.slice(startIndex, endIndex);
-  
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
@@ -142,12 +153,12 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const toggleFavorite = async (recipeId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setTogglingFavorite(recipeId);
-    
+
     const isFavorited = favorites.has(recipeId);
     const newFavorites = new Set(favorites);
-    
+
     // Optimistic UI update
     if (isFavorited) {
       newFavorites.delete(recipeId);
@@ -155,7 +166,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
       newFavorites.add(recipeId);
     }
     setFavorites(newFavorites);
-    
+
     try {
       if (isFavorited) {
         // Remove from favorites
@@ -194,10 +205,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
     }
 
     // Fetch all recipes once (filtering is done client-side)
-    Promise.all([
-      api("/recipes"),
-      fetch("/api/favorites").then(res => res.json())
-    ])
+    Promise.all([api("/recipes"), fetch("/api/favorites").then((res) => res.json())])
       .then(([recipesData, favoritesData]) => {
         console.log("Recipes response:", recipesData);
         console.log("Favorites response:", favoritesData);
@@ -279,13 +287,14 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
               value={skillFilter}
               onChange={(e) => setSkillFilter(e.target.value)}
               className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
-              style={{ 
+              style={{
                 borderColor: "#A28F7A",
-                focusRingColor: "#7A8854"
               }}
             >
               {SKILL_LEVELS.map((level) => (
-                <option key={level} value={level}>{level}</option>
+                <option key={level} value={level}>
+                  {level}
+                </option>
               ))}
             </select>
           </div>
@@ -299,13 +308,14 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
               value={dietaryFilter}
               onChange={(e) => setDietaryFilter(e.target.value)}
               className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
-              style={{ 
+              style={{
                 borderColor: "#A28F7A",
-                focusRingColor: "#7A8854"
               }}
             >
               {DIETARY_PREFERENCES.map((pref) => (
-                <option key={pref} value={pref}>{pref}</option>
+                <option key={pref} value={pref}>
+                  {pref}
+                </option>
               ))}
             </select>
           </div>
@@ -319,63 +329,79 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
               value={timeFilter}
               onChange={(e) => setTimeFilter(e.target.value)}
               className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
-              style={{ 
+              style={{
                 borderColor: "#A28F7A",
-                focusRingColor: "#7A8854"
               }}
             >
               {COOKING_TIMES.map((time) => (
-                <option key={time} value={time}>{time}</option>
+                <option key={time} value={time}>
+                  {time}
+                </option>
               ))}
             </select>
           </div>
         </div>
 
         {/* Active Filters Display */}
-        {(skillFilter !== 'All' || dietaryFilter !== 'All' || timeFilter !== 'All') && (
+        {(skillFilter !== "All" || dietaryFilter !== "All" || timeFilter !== "All") && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-muted-foreground">Active filters:</span>
-            {skillFilter !== 'All' && (
+            {skillFilter !== "All" && (
               <button
-                onClick={() => setSkillFilter('All')}
+                onClick={() => setSkillFilter("All")}
                 className="px-3 py-1 text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: "#7A8854", color: "white" }}
               >
                 {skillFilter}
                 <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )}
-            {dietaryFilter !== 'All' && (
+            {dietaryFilter !== "All" && (
               <button
-                onClick={() => setDietaryFilter('All')}
+                onClick={() => setDietaryFilter("All")}
                 className="px-3 py-1 text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: "#7A8854", color: "white" }}
               >
                 {dietaryFilter}
                 <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )}
-            {timeFilter !== 'All' && (
+            {timeFilter !== "All" && (
               <button
-                onClick={() => setTimeFilter('All')}
+                onClick={() => setTimeFilter("All")}
                 className="px-3 py-1 text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: "#7A8854", color: "white" }}
               >
                 {timeFilter}
                 <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )}
             <button
               onClick={() => {
-                setSkillFilter('All');
-                setDietaryFilter('All');
-                setTimeFilter('All');
+                setSkillFilter("All");
+                setDietaryFilter("All");
+                setTimeFilter("All");
               }}
               className="text-sm underline"
               style={{ color: "#7A8854" }}
@@ -387,100 +413,125 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
 
         {/* Results Count */}
         <p className="text-sm text-muted-foreground">
-          Showing {recipes.length} {recipes.length === 1 ? 'recipe' : 'recipes'}
+          Showing {recipes.length} {recipes.length === 1 ? "recipe" : "recipes"}
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentRecipes.map((recipe, index) => {
-        const isFavorite = favorites.has(recipe._id);
-        const isToggling = togglingFavorite === recipe._id;
-        
-        return (
-          <motion.div
-            key={recipe._id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
-          >
-            <Link
-              href={`/recipes/${recipe._id}?page=${currentPage}`}
-              className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-xl block"
-              style={{ "--focus-ring-color": "#7A8854" } as any}
-            >
-              <Card 
-                className="h-full transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group-focus-visible:shadow-lg relative overflow-hidden border-2"
-                style={{ borderColor: "#A28F7A" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#7A8854";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#A28F7A";
-                }}
-              >
-                {/* Gradient Background with Emoji */}
-                <div 
-                  className="relative w-full h-48 overflow-hidden flex items-center justify-center"
-                  style={{ background: getRecipeGradient(recipe) }}
-                >
-                  <div className="text-8xl opacity-90 transform group-hover:scale-110 transition-transform duration-300">
-                    {getCuisineEmoji(recipe)}
-                  </div>
-                  
-                  {/* Favorite Button */}
-                  <button
-                    onClick={(e) => toggleFavorite(recipe._id, e)}
-                    disabled={isToggling}
-                    className="absolute top-3 right-3 z-10 p-2 rounded-full transition-all hover:scale-110 shadow-lg backdrop-blur-sm"
-                    style={{ 
-                      backgroundColor: isFavorite ? "#7A8854" : "rgba(255, 255, 255, 0.95)"
-                    }}
-                  >
-                    <svg 
-                      className="h-5 w-5 transition-all" 
-                      style={{ color: isFavorite ? "#FFFFFF" : "#7A8854" }}
-                      fill={isFavorite ? "currentColor" : "none"}
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                </div>
+          const isFavorite = favorites.has(recipe._id);
+          const isToggling = togglingFavorite === recipe._id;
 
-                <CardHeader className="space-y-3 pb-4 pt-4">
-                  <CardTitle 
-                    className="text-lg leading-tight transition-colors line-clamp-2"
-                    style={{ color: "#2D2D2D" }}
+          return (
+            <motion.div
+              key={recipe._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+            >
+              <Link
+                href={`/recipes/${recipe._id}?page=${currentPage}`}
+                className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-xl block"
+                style={{ "--focus-ring-color": "#7A8854" } as any}
+              >
+                <Card
+                  className="h-full transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group-focus-visible:shadow-lg relative overflow-hidden border-2"
+                  style={{ borderColor: "#A28F7A" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#7A8854";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#A28F7A";
+                  }}
+                >
+                  {/* Gradient Background with Emoji */}
+                  <div
+                    className="relative w-full h-48 overflow-hidden flex items-center justify-center"
+                    style={{ background: getRecipeGradient(recipe) }}
                   >
-                    {recipe.title}
-                  </CardTitle>
-                  <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <span 
-                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium"
-                      style={{ backgroundColor: "#E8A628", color: "#FFFFFF" }}
+                    <div className="text-8xl opacity-90 transform group-hover:scale-110 transition-transform duration-300">
+                      {getCuisineEmoji(recipe)}
+                    </div>
+
+                    {/* Favorite Button */}
+                    <button
+                      onClick={(e) => toggleFavorite(recipe._id, e)}
+                      disabled={isToggling}
+                      className="absolute top-3 right-3 z-10 p-2 rounded-full transition-all hover:scale-110 shadow-lg backdrop-blur-sm"
+                      style={{
+                        backgroundColor: isFavorite ? "#7A8854" : "rgba(255, 255, 255, 0.95)",
+                      }}
                     >
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      <svg
+                        className="h-5 w-5 transition-all"
+                        style={{ color: isFavorite ? "#FFFFFF" : "#7A8854" }}
+                        fill={isFavorite ? "currentColor" : "none"}
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
                       </svg>
-                      {recipe.cuisine}
-                    </span>
-                    <span 
-                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium"
-                      style={{ backgroundColor: "#E8A628", color: "#FFFFFF" }}
-                    >
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      {recipe.skill}
-                    </span>
+                    </button>
                   </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          </motion.div>
-        );
-      })}
+
+                  <CardHeader className="space-y-3 pb-4 pt-4">
+                    <CardTitle
+                      className="text-lg leading-tight transition-colors line-clamp-2"
+                      style={{ color: "#2D2D2D" }}
+                    >
+                      {recipe.title}
+                    </CardTitle>
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium"
+                        style={{ backgroundColor: "#E8A628", color: "#FFFFFF" }}
+                      >
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          />
+                        </svg>
+                        {recipe.cuisine}
+                      </span>
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium"
+                        style={{ backgroundColor: "#E8A628", color: "#FFFFFF" }}
+                      >
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          />
+                        </svg>
+                        {recipe.skill}
+                      </span>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Pagination */}
@@ -488,16 +539,21 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
         <div className="mt-12 flex items-center justify-center gap-2">
           <Button
             variant="outline"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
             className="border-2 disabled:opacity-50"
-            style={{ 
+            style={{
               borderColor: "#A28F7A",
-              color: "#2D2D2D"
+              color: "#2D2D2D",
             }}
           >
             <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Previous
           </Button>
@@ -522,12 +578,12 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
 
           <Button
             variant="outline"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
             className="border-2 disabled:opacity-50"
-            style={{ 
+            style={{
               borderColor: "#A28F7A",
-              color: "#2D2D2D"
+              color: "#2D2D2D",
             }}
           >
             Next

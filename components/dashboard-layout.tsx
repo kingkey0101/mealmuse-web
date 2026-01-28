@@ -7,11 +7,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen" style={{ backgroundColor: "#FDFDFB" }}>
       <DashboardSidebar />
       <MobileSidebarToggle />
-      
+
       <div className="lg:pl-64">
-        <main className="py-10">
-          {children}
-        </main>
+        <main className="py-10">{children}</main>
       </div>
     </div>
   );

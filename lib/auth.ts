@@ -42,10 +42,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const isValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValid) return null;
 
@@ -92,4 +89,4 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/login",
   },
-}
+};

@@ -15,14 +15,11 @@ export default async function FavoritesPage() {
     <DashboardLayout>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 space-y-3">
-          <h1 
-            className="text-4xl font-bold tracking-tight"
-            style={{ color: "#0D5F3A" }}
-          >
+          <h1 className="text-4xl font-bold tracking-tight" style={{ color: "#0D5F3A" }}>
             My Favorites
           </h1>
           <p className="text-lg text-muted-foreground">
-            Recipes you've saved for quick access
+            Recipes you&apos;ve saved for quick access
           </p>
         </div>
         <FavoritesClient />

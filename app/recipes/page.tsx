@@ -24,10 +24,7 @@ export default async function RecipesPage({
         <div className="mb-8 space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 
-                className="text-4xl font-bold tracking-tight mb-2"
-                style={{ color: "#0D5F3A" }}
-              >
+              <h1 className="text-4xl font-bold tracking-tight mb-2" style={{ color: "#0D5F3A" }}>
                 Your Recipe Collection
               </h1>
               <p className="text-lg text-muted-foreground">

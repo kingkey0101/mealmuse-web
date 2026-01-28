@@ -16,10 +16,7 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!title || !cuisine || !skill || !ingredients || !steps || !equipment) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
     if (!Array.isArray(ingredients) || !Array.isArray(steps) || !Array.isArray(equipment)) {
@@ -31,10 +28,7 @@ export async function POST(req: NextRequest) {
 
     // Validate dietary is an array if provided
     if (dietary && !Array.isArray(dietary)) {
-      return NextResponse.json(
-        { error: "Dietary must be an array" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Dietary must be an array" }, { status: 400 });
     }
 
     const client = await clientPromise;
@@ -57,17 +51,14 @@ export async function POST(req: NextRequest) {
     const result = await db.collection("recipes").insertOne(recipe);
 
     return NextResponse.json(
-      { 
-        success: true, 
-        recipeId: result.insertedId.toString() 
+      {
+        success: true,
+        recipeId: result.insertedId.toString(),
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("Error creating recipe:", error);
-    return NextResponse.json(
-      { error: "Failed to create recipe" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create recipe" }, { status: 500 });
   }
 }

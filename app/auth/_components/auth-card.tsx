@@ -3,13 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
-export function AuthCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+export function AuthCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <motion.div
@@ -20,9 +14,7 @@ export function AuthCard({
       >
         <Card className="shadow-lg border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-center">
-              {title}
-            </CardTitle>
+            <CardTitle className="text-2xl font-semibold text-center">{title}</CardTitle>
           </CardHeader>
           <CardContent>{children}</CardContent>
         </Card>

@@ -52,15 +52,12 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-10 text-center"
         >
-          <img 
-            src="/favicon.ico" 
-            alt="MealMuse Logo" 
+          <img
+            src="/favicon.ico"
+            alt="MealMuse Logo"
             className="h-16 w-16 mx-auto mb-3 drop-shadow-lg"
           />
-          <h1 
-            className="font-serif text-4xl font-bold mb-3"
-            style={{ color: "#7A8854" }}
-          >
+          <h1 className="font-serif text-4xl font-bold mb-3" style={{ color: "#7A8854" }}>
             MealMuse
           </h1>
           <p className="text-muted-foreground text-base">Welcome back to your culinary journey</p>
@@ -69,7 +66,9 @@ export default function LoginPage() {
         <Card className="shadow-2xl border-border/50 backdrop-blur-sm">
           <CardHeader className="space-y-3 text-center pb-8 pt-8">
             <CardTitle className="text-2xl font-semibold">Log in</CardTitle>
-            <CardDescription className="text-base">Enter your credentials to access your recipes</CardDescription>
+            <CardDescription className="text-base">
+              Enter your credentials to access your recipes
+            </CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -136,17 +135,28 @@ export default function LoginPage() {
                   style={{ backgroundColor: "#7A8854" }}
                   disabled={isLoading}
                 >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Logging in...
-                  </span>
-                ) : (
-                  "Log in"
-                )}
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Logging in...
+                    </span>
+                  ) : (
+                    "Log in"
+                  )}
                 </Button>
               </motion.div>
 
@@ -156,7 +166,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="bg-card px-4 text-muted-foreground">
-                    Don't have an account?
+                    Don&apos;t have an account?
                   </span>
                 </div>
               </div>
