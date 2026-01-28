@@ -134,7 +134,7 @@ export async function DELETE(req: NextRequest) {
       await db.collection("shoppingLists").updateOne(
         { userId: session.user.id },
         {
-          $pull: { items: { checked: true } },
+          $pull: { items: { checked: true } } as any,
           $set: { updatedAt: new Date() },
         }
       );
@@ -143,7 +143,7 @@ export async function DELETE(req: NextRequest) {
       await db.collection("shoppingLists").updateOne(
         { userId: session.user.id },
         {
-          $pull: { items: { id: itemId } },
+          $pull: { items: { id: itemId } } as any,
           $set: { updatedAt: new Date() },
         }
       );
