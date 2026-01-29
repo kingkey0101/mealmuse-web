@@ -29,10 +29,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No subscription found" }, { status: 404 });
     }
 
+    // Determine base URL - use localhost in development, production URL otherwise
+    const baseUrl = process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3000'
+      : process.env.NEXTAUTH_URL || 'http://mymealmuse.com';
+
     // Create portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${process.env.NEXTAUTH_URL}/account/subscription`,
+      return_url: `${baseUrl}/account/subscription`,
     });
 
     return NextResponse.json({ url: portalSession.url });
