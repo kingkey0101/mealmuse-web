@@ -6,7 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PremiumBadge } from "./PremiumBadge";
 import Link from "next/link";
-import { getDaysRemaining, formatSubscriptionStatus, type UserSubscription } from "@/lib/subscription-helpers";
+import {
+  getDaysRemaining,
+  formatSubscriptionStatus,
+  type UserSubscription,
+} from "@/lib/subscription-helpers";
 
 interface SubscriptionData {
   tier?: string;

@@ -31,6 +31,7 @@ export function DashboardSidebar() {
     tier: "free",
     status: "active",
   });
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
 
   // Fetch real subscription status from server
   useEffect(() => {
@@ -49,6 +50,8 @@ export function DashboardSidebar() {
             status: "active",
           }
         );
+      } finally {
+        setSubscriptionLoaded(true);
       }
     }
 
@@ -213,7 +216,7 @@ export function DashboardSidebar() {
         </nav>
 
         {/* Premium Upgrade CTA - Desktop */}
-        {!isPremium && (
+        {subscriptionLoaded && !isPremium && (
           <div className="px-4 mb-3">
             <Link href="/premium">
               <div
@@ -313,8 +316,38 @@ export function MobileSidebarToggle() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [subscription, setSubscription] = useState<SubscriptionData>({
+    tier: "free",
+    status: "active",
+  });
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
 
-  const userTier = (session?.user as SubscriptionData)?.tier || "free";
+  // Fetch real subscription status from server
+  useEffect(() => {
+    async function fetchSubscription() {
+      try {
+        const response = await fetch("/api/stripe/subscription-status");
+        if (response.ok) {
+          const data = await response.json();
+          setSubscription(data.subscription || { tier: "free", status: "active" });
+        }
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+        setSubscription(
+          ((session?.user as any)?.subscription as SubscriptionData) || {
+            tier: "free",
+            status: "active",
+          }
+        );
+      } finally {
+        setSubscriptionLoaded(true);
+      }
+    }
+
+    fetchSubscription();
+  }, [session]);
+
+  const userTier = subscription.tier || "free";
   const isPremium = userTier === "premium";
 
   const handleLogout = async () => {
@@ -498,6 +531,34 @@ export function MobileSidebarToggle() {
                   );
                 })}
               </nav>
+
+              {/* Premium Upgrade CTA - Mobile */}
+              {subscriptionLoaded && !isPremium && (
+                <div className="px-4 mb-3">
+                  <Link href="/premium" onClick={() => setIsOpen(false)}>
+                    <div
+                      className="rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                      style={{
+                        background: "linear-gradient(135deg, #E8A628 0%, #D4941F 100%)",
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl">✨</span>
+                        <span className="text-white font-bold">Go Premium</span>
+                      </div>
+                      <p className="text-white text-xs opacity-90 mb-3">
+                        Unlock AI features, unlimited favorites, and more
+                      </p>
+                      <button
+                        className="w-full bg-white text-sm font-semibold py-2 px-3 rounded-md hover:scale-105 transition-transform"
+                        style={{ color: "#E8A628" }}
+                      >
+                        Upgrade Now
+                      </button>
+                    </div>
+                  </Link>
+                </div>
+              )}
 
               {/* User Section */}
               <div className="px-4 mt-4">
