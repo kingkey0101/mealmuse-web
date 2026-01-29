@@ -30,9 +30,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Determine base URL - use localhost in development, production URL otherwise
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000'
-      : process.env.NEXTAUTH_URL || 'http://mymealmuse.com';
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : process.env.NEXTAUTH_URL || "http://mymealmuse.com";
 
     // Create portal session
     const portalSession = await stripe.billingPortal.sessions.create({

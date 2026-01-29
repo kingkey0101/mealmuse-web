@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PremiumBadge } from "./PremiumBadge";
 import Link from "next/link";
-import { getDaysRemaining, formatSubscriptionStatus } from "@/lib/subscription-helpers";
+import { getDaysRemaining, formatSubscriptionStatus, type UserSubscription } from "@/lib/subscription-helpers";
 
 interface SubscriptionData {
   tier?: string;
   status?: string;
   currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
 }
 
 export function SubscriptionStatus() {
@@ -35,7 +36,12 @@ export function SubscriptionStatus() {
       } catch (error) {
         console.error("Failed to fetch subscription:", error);
         // Fall back to session data
-        setSubscription((session?.user as any)?.subscription || { tier: "free", status: "active" });
+        setSubscription(
+          ((session?.user as any)?.subscription as SubscriptionData) || {
+            tier: "free",
+            status: "active",
+          }
+        );
       } finally {
         setLoading(false);
       }
@@ -78,7 +84,7 @@ export function SubscriptionStatus() {
           </p>
           {isPremium && (
             <p className="text-sm text-muted-foreground mt-1">
-              Status: {formatSubscriptionStatus(subscription as any)}
+              Status: {formatSubscriptionStatus(subscription as UserSubscription)}
             </p>
           )}
         </div>

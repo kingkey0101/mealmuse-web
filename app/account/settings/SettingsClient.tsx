@@ -10,6 +10,7 @@ interface SubscriptionData {
   tier?: string;
   status?: string;
   currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
 }
 
 export default function SettingsClient({ userEmail }: { userEmail: string }) {
@@ -71,9 +72,7 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-1">Member Since</p>
-            <p className="text-lg font-medium">
-              {session?.user?.email ? "Active" : "Loading..."}
-            </p>
+            <p className="text-lg font-medium">{session?.user?.email ? "Active" : "Loading..."}</p>
           </div>
         </CardContent>
       </Card>
@@ -116,7 +115,8 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
               {isPremium ? (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-900 mb-3">
-                    Thank you for being a Premium member! Manage your billing, payment methods, and view invoices.
+                    Thank you for being a Premium member! Manage your billing, payment methods, and
+                    view invoices.
                   </p>
                   <Button
                     onClick={handleManageSubscription}
@@ -130,13 +130,19 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
               ) : (
                 <div
                   className="rounded-lg p-4"
-                  style={{ backgroundColor: "rgba(232, 166, 40, 0.1)", borderLeft: "4px solid #E8A628" }}
+                  style={{
+                    backgroundColor: "rgba(232, 166, 40, 0.1)",
+                    borderLeft: "4px solid #E8A628",
+                  }}
                 >
                   <p className="text-sm text-gray-700 mb-3">
                     Upgrade to Premium to unlock AI features, unlimited favorites, and more!
                   </p>
                   <Link href="/premium" className="w-full block">
-                    <Button className="w-full" style={{ backgroundColor: "#E8A628", color: "#000" }}>
+                    <Button
+                      className="w-full"
+                      style={{ backgroundColor: "#E8A628", color: "#000" }}
+                    >
                       View Premium Plans
                     </Button>
                   </Link>
