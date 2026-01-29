@@ -6,13 +6,37 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { SubscriptionStatus } from "@/components/premium/SubscriptionStatus";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SubscriptionPage() {
   const { data: session, status } = useSession();
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+  const [userTier, setUserTier] = useState<string>("free");
+  const [loading, setLoading] = useState(true);
 
-  if (status === "loading") {
+  useEffect(() => {
+    // Fetch current subscription to ensure we have the latest tier
+    async function fetchSubscription() {
+      try {
+        const response = await fetch("/api/stripe/subscription-status");
+        if (response.ok) {
+          const data = await response.json();
+          setUserTier(data.subscription?.tier || "free");
+        }
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+        setUserTier((session?.user as any)?.tier || "free");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (session) {
+      fetchSubscription();
+    }
+  }, [session]);
+
+  if (status === "loading" || loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -46,7 +70,6 @@ export default function SubscriptionPage() {
     }
   };
 
-  const userTier = (session.user as any)?.tier || "free";
   const isPremium = userTier === "premium";
 
   return (
