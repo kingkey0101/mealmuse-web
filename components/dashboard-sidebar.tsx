@@ -5,12 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { PremiumFeatureBadge } from "./premium/PremiumBadge";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const userTier = (session?.user as any)?.tier || "free";
+  const isPremium = userTier === "premium";
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -140,18 +144,39 @@ export function DashboardSidebar() {
               >
                 <span className={isActive ? "text-foreground" : "text-white/90"}>{item.icon}</span>
                 <span className="flex-1">{item.name}</span>
-                {item.badge && (
-                  <span
-                    className="px-2 py-0.5 text-xs font-semibold rounded-full"
-                    style={{ backgroundColor: "#E8A628", color: "#1A1A1A" }}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+                {(item as any).premium && !isPremium && <PremiumFeatureBadge />}
               </Link>
             );
           })}
         </nav>
+
+        {/* Premium Upgrade CTA - Desktop */}
+        {!isPremium && (
+          <div className="px-4 mb-3">
+            <Link href="/premium">
+              <div
+                className="rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                style={{
+                  background: "linear-gradient(135deg, #E8A628 0%, #D4941F 100%)",
+                }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">✨</span>
+                  <span className="text-white font-bold">Go Premium</span>
+                </div>
+                <p className="text-white text-xs opacity-90 mb-3">
+                  Unlock AI features, unlimited favorites, and more
+                </p>
+                <button
+                  className="w-full bg-white text-sm font-semibold py-2 px-3 rounded-md hover:scale-105 transition-transform"
+                  style={{ color: "#E8A628" }}
+                >
+                  Upgrade Now
+                </button>
+              </div>
+            </Link>
+          </div>
+        )}
 
         {/* User Section */}
         <div className="px-4 mt-4">
@@ -226,6 +251,9 @@ export function MobileSidebarToggle() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const userTier = (session?.user as any)?.tier || "free";
+  const isPremium = userTier === "premium";
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
