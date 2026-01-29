@@ -28,21 +28,33 @@ export const PLANS = {
   },
   annual: {
     name: "Premium Annual",
-    price: 99.99,
+    price: 79,
     priceId: process.env.STRIPE_PRICE_ID_ANNUAL || "", // Will be set after Stripe setup
     interval: "year" as const,
-    description: "Billed annually, save 17%",
-    savings: "$19.89/year",
+    description: "Billed annually, save 34%",
+    savings: "$40.88/year",
+    regularPrice: 119.88, // $9.99 * 12 months
+  },
+  earlyAdopter: {
+    name: "Early Adopter Special",
+    price: 6.99,
+    interval: "month" as const,
+    description: "Limited time: First 50 users",
+    subtitle: "Save 30% forever on monthly plan",
+    slots: 50,
   },
 } as const;
 
-export type PlanInterval = "monthly" | "annual";
+export type PlanInterval = "monthly" | "annual" | "earlyAdopter";
 
 /**
  * Get plan details by interval
  */
-export function getPlan(interval: PlanInterval) {
-  return PLANS[interval];
+export function getPlan(interval: PlanInterval | string) {
+  if (interval === "earlyAdopter") {
+    return PLANS.earlyAdopter;
+  }
+  return PLANS[interval as "monthly" | "annual"];
 }
 
 /**
@@ -56,7 +68,14 @@ export function formatPrice(price: number): string {
 }
 
 /**
- * Calculate savings for annual plan
+ * Calculate early adopter savings
+ */
+export function calculateEarlyAdopterSavings(): number {
+  return PLANS.monthly.price - PLANS.earlyAdopter.price; // $3.00/month
+}
+
+/**
+ * Calculate annual savings vs monthly
  */
 export function calculateAnnualSavings(): number {
   const monthlyTotal = PLANS.monthly.price * 12;

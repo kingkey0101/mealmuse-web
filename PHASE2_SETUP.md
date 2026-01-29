@@ -18,34 +18,43 @@ Phase 2 integrates Stripe payment processing for Premium subscriptions. This ena
 - `app/account/subscription/page.tsx` - Subscription management
 - `app/premium/PremiumPageClient.tsx` - Updated pricing page with checkout
 
-## Setup Instructions
+## Pricing Strategy
 
-### 1. Create Stripe Account
-1. Go to [stripe.com](https://stripe.com) and sign up
-2. Switch to **Test Mode** (toggle in top right)
-3. Keep your dashboard open for the next steps
+### Regular Pricing
+- **Monthly**: $9.99/month (billed monthly, cancel anytime)
+- **Annual**: $79/year (billed annually, save 34% vs monthly)
+- **Early Adopter**: $6.99/month (locked rate forever for first 50 users)
 
-### 2. Create Products and Prices
+### Early Adopter Discount
+A limited-time offer to drive early adoption and reach $5,000/month revenue goal:
+- First 50 users get $6.99/month permanently
+- 30% discount off regular monthly pricing
+- Locked rate never increases (even if regular pricing changes)
+- Creates urgency for early sign-ups
+- Helps reach revenue target: 50 users × $6.99 = $349.50/mo baseline, plus regular subscribers
 
-#### Premium Monthly Subscription
-1. Go to **Products** in Stripe Dashboard
-2. Click **Add Product**
-3. Fill in:
-   - Name: `MealMuse Premium Monthly`
-   - Description: `Monthly subscription to MealMuse Premium`
-   - Pricing Model: **Recurring**
-   - Price: `$9.99`
-   - Billing Period: **Monthly**
-4. Click **Save Product**
-5. **Copy the Price ID** (starts with `price_...`)
+### Create Stripe Products and Prices
 
-#### Premium Annual Subscription
-1. In the same product, click **Add another price**
-2. Fill in:
-   - Price: `$99`
-   - Billing Period: **Yearly**
-3. Click **Add price**
-4. **Copy the Price ID** (starts with `price_...`)
+#### Regular Monthly Subscription
+1. **Product Name**: `MealMuse Premium Monthly`
+2. **Price**: $9.99/month (recurring)
+
+#### Annual Subscription
+1. **Product Name**: `MealMuse Premium Annual`
+2. **Price**: $79/year (recurring annually)
+
+### Database Schema for Early Adopters
+Collection: `earlyAdopters`
+```javascript
+{
+  _id: ObjectId,
+  userId: string,
+  email: string,
+  claimedAt: Date,
+  canceledAt?: Date,
+  status: "active" | "canceled"
+}
+```
 
 ### 3. Get API Keys
 1. Go to **Developers** > **API Keys**

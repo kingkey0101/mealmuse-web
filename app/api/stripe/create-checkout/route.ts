@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { stripe, getPlan, PlanInterval } from "@/lib/stripe";
+import {
+  getEarlyAdopterStatus,
+  hasUserClaimedEarlyAdopter,
+  claimEarlyAdopterDiscount,
+} from "@/lib/early-adopter";
 import clientPromise from "@/lib/db";
 
 export async function POST(req: NextRequest) {
@@ -12,16 +17,50 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { interval } = await req.json();
+    const { interval, useEarlyAdopter } = await req.json();
 
     // Validate interval
     if (interval !== "monthly" && interval !== "annual") {
       return NextResponse.json({ error: "Invalid plan interval" }, { status: 400 });
     }
 
-    const plan = getPlan(interval as PlanInterval);
+    let priceId: string;
+    let planType: string = interval;
 
-    if (!plan.priceId) {
+    // Handle early adopter pricing
+    if (useEarlyAdopter && interval === "monthly") {
+      const hasAlreadyClaimed = await hasUserClaimedEarlyAdopter(session.user.id);
+
+      if (hasAlreadyClaimed) {
+        return NextResponse.json(
+          { error: "You have already claimed the early adopter discount" },
+          { status: 400 }
+        );
+      }
+
+      const status = await getEarlyAdopterStatus();
+      if (!status.isEligible) {
+        return NextResponse.json(
+          { error: "Early adopter slots are sold out. Regular pricing available." },
+          { status: 400 }
+        );
+      }
+
+      // Claim the discount
+      const result = await claimEarlyAdopterDiscount(session.user.id, session.user.email!);
+      if (!result.success) {
+        return NextResponse.json({ error: result.message }, { status: 400 });
+      }
+
+      planType = "earlyAdopter";
+      // Use monthly price ID with special metadata
+      priceId = process.env.STRIPE_PRICE_ID_MONTHLY || "";
+    } else {
+      const plan = getPlan(interval as PlanInterval);
+      priceId = plan.priceId;
+    }
+
+    if (!priceId) {
       return NextResponse.json(
         { error: "Stripe price ID not configured. Please contact support." },
         { status: 500 }
@@ -65,7 +104,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: plan.priceId,
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -74,10 +113,14 @@ export async function POST(req: NextRequest) {
       metadata: {
         userId: session.user.id,
         planInterval: interval,
+        planType: planType,
+        isEarlyAdopter: useEarlyAdopter ? "true" : "false",
       },
       subscription_data: {
         metadata: {
           userId: session.user.id,
+          planType: planType,
+          isEarlyAdopter: useEarlyAdopter ? "true" : "false",
         },
       },
     });
