@@ -8,6 +8,14 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       token: string;
+      tier?: "free" | "premium";
+      subscription?: {
+        status: "active" | "canceled" | "past_due" | "trialing" | "incomplete";
+        stripeCustomerId?: string;
+        stripeSubscriptionId?: string;
+        currentPeriodEnd?: Date;
+        cancelAtPeriodEnd?: boolean;
+      };
     } & DefaultSession["user"];
   }
   interface User extends DefaultUser {
