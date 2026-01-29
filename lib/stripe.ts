@@ -13,7 +13,7 @@ if (!stripeSecretKey) {
 }
 
 export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2026-01-28.clover",
   typescript: true,
 });
 
@@ -38,6 +38,7 @@ export const PLANS = {
   earlyAdopter: {
     name: "Early Adopter Special",
     price: 6.99,
+    priceId: process.env.STRIPE_PRICE_ID_EARLY_ADOPTER || "", // Will be set after Stripe setup
     interval: "month" as const,
     description: "Limited time: First 50 users",
     subtitle: "Save 30% forever on monthly plan",

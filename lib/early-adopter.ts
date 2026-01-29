@@ -1,7 +1,10 @@
 /**
  * Early Adopter Discount Tracking
  * Manages limited-time discount for first 50 users
+ * ⚠️ SERVER-ONLY: This module uses MongoDB and must only run on the server
  */
+
+import "server-only";
 
 import clientPromise from "@/lib/db";
 import { PLANS } from "@/lib/stripe";
@@ -22,9 +25,7 @@ export async function getEarlyAdopterStatus(): Promise<EarlyAdopterStatus> {
     const db = client.db();
 
     // Count early adopter subscriptions
-    const earlyAdopters = await db
-      .collection("earlyAdopters")
-      .countDocuments({ status: "active" });
+    const earlyAdopters = await db.collection("earlyAdopters").countDocuments({ status: "active" });
 
     const maxSlots = PLANS.earlyAdopter.slots;
     const slotsRemaining = Math.max(0, maxSlots - earlyAdopters);
@@ -108,10 +109,9 @@ export async function cancelEarlyAdopterDiscount(userId: string): Promise<void> 
     const client = await clientPromise;
     const db = client.db();
 
-    await db.collection("earlyAdopters").updateOne(
-      { userId },
-      { $set: { status: "canceled", canceledAt: new Date() } }
-    );
+    await db
+      .collection("earlyAdopters")
+      .updateOne({ userId }, { $set: { status: "canceled", canceledAt: new Date() } });
   } catch (error) {
     console.error("Error canceling early adopter discount:", error);
   }

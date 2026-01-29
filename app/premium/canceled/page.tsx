@@ -39,8 +39,7 @@ export default async function CanceledPage() {
                 Still interested in Premium?
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Get access to AI-powered recipe tools, unlimited favorites, meal planning, and
-                more.
+                Get access to AI-powered recipe tools, unlimited favorites, meal planning, and more.
               </p>
               <Link href="/premium">
                 <Button
@@ -66,7 +65,11 @@ export default async function CanceledPage() {
             <div className="pt-6 border-t">
               <p className="text-sm text-muted-foreground">
                 Have questions? Contact us at{" "}
-                <a href="mailto:support@mymealmuse.com" className="underline" style={{ color: "#0D5F3A" }}>
+                <a
+                  href="mailto:support@mymealmuse.com"
+                  className="underline"
+                  style={{ color: "#0D5F3A" }}
+                >
                   support@mymealmuse.com
                 </a>
               </p>

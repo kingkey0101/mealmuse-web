@@ -96,8 +96,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session, db: any
         "subscription.status": subscription.status,
         "subscription.stripeCustomerId": session.customer as string,
         "subscription.stripeSubscriptionId": subscriptionId,
-        "subscription.currentPeriodEnd": new Date(subscription.current_period_end * 1000),
-        "subscription.cancelAtPeriodEnd": subscription.cancel_at_period_end,
+        "subscription.currentPeriodEnd": new Date(
+          (subscription as any)["current_period_end"] * 1000
+        ),
+        "subscription.cancelAtPeriodEnd": (subscription as any)["cancel_at_period_end"],
         updatedAt: new Date(),
       },
     }
@@ -122,8 +124,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription, db: 
     {
       $set: {
         "subscription.status": subscription.status,
-        "subscription.currentPeriodEnd": new Date(subscription.current_period_end * 1000),
-        "subscription.cancelAtPeriodEnd": subscription.cancel_at_period_end,
+        "subscription.currentPeriodEnd": new Date(
+          (subscription as any)["current_period_end"] * 1000
+        ),
+        "subscription.cancelAtPeriodEnd": (subscription as any)["cancel_at_period_end"],
         updatedAt: new Date(),
       },
     }
@@ -162,7 +166,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, db: 
  * Handle successful payment
  */
 async function handlePaymentSucceeded(invoice: Stripe.Invoice, db: any) {
-  const subscriptionId = invoice.subscription as string;
+  const subscriptionId = (invoice as any).subscription as string;
 
   if (!subscriptionId) return;
 
@@ -177,7 +181,9 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice, db: any) {
     {
       $set: {
         "subscription.status": "active",
-        "subscription.currentPeriodEnd": new Date(subscription.current_period_end * 1000),
+        "subscription.currentPeriodEnd": new Date(
+          (subscription as any)["current_period_end"] * 1000
+        ),
         updatedAt: new Date(),
       },
     }
@@ -190,7 +196,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice, db: any) {
  * Handle failed payment
  */
 async function handlePaymentFailed(invoice: Stripe.Invoice, db: any) {
-  const subscriptionId = invoice.subscription as string;
+  const subscriptionId = (invoice as any).subscription as string;
 
   if (!subscriptionId) return;
 

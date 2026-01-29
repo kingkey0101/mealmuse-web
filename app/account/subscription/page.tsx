@@ -73,8 +73,8 @@ export default function SubscriptionPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  Update your payment method, view invoices, or cancel your subscription through
-                  the Stripe billing portal.
+                  Update your payment method, view invoices, or cancel your subscription through the
+                  Stripe billing portal.
                 </p>
                 <Button
                   onClick={handleManageSubscription}

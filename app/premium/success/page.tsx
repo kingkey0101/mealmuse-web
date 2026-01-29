@@ -18,7 +18,10 @@ export default async function SuccessPage() {
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-16">
         <Card className="border-2 shadow-xl" style={{ borderColor: "#1FA244" }}>
           <CardHeader className="text-center pb-6">
-            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(31, 162, 68, 0.1)" }}>
+            <div
+              className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              style={{ backgroundColor: "rgba(31, 162, 68, 0.1)" }}
+            >
               <span className="text-4xl">🎉</span>
             </div>
             <CardTitle className="text-3xl" style={{ color: "#0D5F3A" }}>
@@ -85,7 +88,11 @@ export default async function SuccessPage() {
             <div className="pt-6 border-t">
               <p className="text-sm text-muted-foreground">
                 Need help? Visit our{" "}
-                <Link href="/account/subscription" className="underline" style={{ color: "#0D5F3A" }}>
+                <Link
+                  href="/account/subscription"
+                  className="underline"
+                  style={{ color: "#0D5F3A" }}
+                >
                   subscription settings
                 </Link>{" "}
                 to manage your plan.

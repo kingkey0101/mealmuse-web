@@ -1,11 +1,13 @@
 # Phase 2: Stripe Integration Setup Guide
 
 ## Overview
+
 Phase 2 integrates Stripe payment processing for Premium subscriptions. This enables users to upgrade from the free tier to Premium ($9.99/month or $99/year).
 
 ## Files Created
 
 ### Core Stripe Configuration
+
 - `lib/stripe.ts` - Stripe client and pricing configuration
 - `app/api/stripe/create-checkout/route.ts` - Checkout session creation
 - `app/api/stripe/webhook/route.ts` - Webhook event handler
@@ -13,6 +15,7 @@ Phase 2 integrates Stripe payment processing for Premium subscriptions. This ena
 - `app/api/stripe/subscription-status/route.ts` - Subscription status endpoint
 
 ### UI Pages
+
 - `app/premium/success/page.tsx` - Post-purchase success page
 - `app/premium/canceled/page.tsx` - Checkout canceled page
 - `app/account/subscription/page.tsx` - Subscription management
@@ -21,12 +24,15 @@ Phase 2 integrates Stripe payment processing for Premium subscriptions. This ena
 ## Pricing Strategy
 
 ### Regular Pricing
+
 - **Monthly**: $9.99/month (billed monthly, cancel anytime)
 - **Annual**: $79/year (billed annually, save 34% vs monthly)
 - **Early Adopter**: $6.99/month (locked rate forever for first 50 users)
 
 ### Early Adopter Discount
+
 A limited-time offer to drive early adoption and reach $5,000/month revenue goal:
+
 - First 50 users get $6.99/month permanently
 - 30% discount off regular monthly pricing
 - Locked rate never increases (even if regular pricing changes)
@@ -36,15 +42,19 @@ A limited-time offer to drive early adoption and reach $5,000/month revenue goal
 ### Create Stripe Products and Prices
 
 #### Regular Monthly Subscription
+
 1. **Product Name**: `MealMuse Premium Monthly`
 2. **Price**: $9.99/month (recurring)
 
 #### Annual Subscription
+
 1. **Product Name**: `MealMuse Premium Annual`
 2. **Price**: $79/year (recurring annually)
 
 ### Database Schema for Early Adopters
+
 Collection: `earlyAdopters`
+
 ```javascript
 {
   _id: ObjectId,
@@ -57,6 +67,7 @@ Collection: `earlyAdopters`
 ```
 
 ### 3. Get API Keys
+
 1. Go to **Developers** > **API Keys**
 2. Copy your **Secret Key** (starts with `sk_test_`)
 3. Copy your **Publishable Key** (starts with `pk_test_`)
@@ -64,20 +75,24 @@ Collection: `earlyAdopters`
 ### 4. Set Up Webhook
 
 #### Local Development (Stripe CLI)
+
 1. Install Stripe CLI:
+
    ```powershell
    # Windows (with Scoop)
    scoop install stripe
-   
+
    # Or download from https://stripe.com/docs/stripe-cli
    ```
 
 2. Login to Stripe:
+
    ```powershell
    stripe login
    ```
 
 3. Forward webhooks to local server:
+
    ```powershell
    stripe listen --forward-to http://localhost:3000/api/stripe/webhook
    ```
@@ -85,6 +100,7 @@ Collection: `earlyAdopters`
 4. Copy the webhook signing secret (starts with `whsec_`)
 
 #### Production Deployment
+
 1. Go to **Developers** > **Webhooks**
 2. Click **Add Endpoint**
 3. Enter your URL: `https://yourdomain.com/api/stripe/webhook`
@@ -120,16 +136,19 @@ NEXTAUTH_SECRET=your_nextauth_secret
 ### 6. Test the Integration
 
 #### Start Development Server
+
 ```powershell
 npm run dev
 ```
 
 #### In Another Terminal (for webhooks)
+
 ```powershell
 stripe listen --forward-to http://localhost:3000/api/stripe/webhook
 ```
 
 #### Test Checkout Flow
+
 1. Navigate to `http://localhost:3000/premium`
 2. Click **Upgrade to Premium** (monthly or annual)
 3. Use Stripe test card: `4242 4242 4242 4242`
@@ -141,9 +160,11 @@ stripe listen --forward-to http://localhost:3000/api/stripe/webhook
 9. Verify session now shows `tier: "premium"`
 
 #### Test Webhook Events
+
 Monitor the Stripe CLI output to see webhook events being received and processed.
 
 #### Test Billing Portal
+
 1. Go to `http://localhost:3000/account/subscription`
 2. Click **Open Billing Portal**
 3. Test subscription management (cancel, update payment method, etc.)
@@ -151,21 +172,25 @@ Monitor the Stripe CLI output to see webhook events being received and processed
 ### 7. Test Scenarios
 
 ✅ **Successful Subscription**
+
 - Complete checkout
 - Verify premium features unlock
 - Check database subscription record
 
 ✅ **Subscription Cancellation**
+
 - Go to billing portal
 - Cancel subscription
 - Verify access continues until period end
 - Verify downgrade happens after period ends
 
 ✅ **Failed Payment**
+
 - Use declining test card: `4000 0000 0000 0341`
 - Verify subscription status changes to `past_due`
 
 ✅ **Subscription Renewal**
+
 - Fast-forward subscription in Stripe Dashboard
 - Trigger renewal
 - Verify webhook updates subscription period
@@ -187,6 +212,7 @@ Before going live:
 ## Stripe Dashboard Configuration
 
 ### Customer Portal Settings
+
 1. Go to **Settings** > **Customer Portal**
 2. Enable:
    - **Subscription management** (cancel, pause)
@@ -195,6 +221,7 @@ Before going live:
 3. Set cancellation behavior: **At period end** (recommended)
 
 ### Email Settings
+
 1. Go to **Settings** > **Emails**
 2. Enable:
    - Successful payments
@@ -203,6 +230,7 @@ Before going live:
    - Subscription canceled
 
 ### Branding
+
 1. Go to **Settings** > **Branding**
 2. Upload logo
 3. Set brand colors:
@@ -212,21 +240,25 @@ Before going live:
 ## Troubleshooting
 
 ### Webhook not receiving events
+
 - Ensure Stripe CLI is running (`stripe listen`)
 - Check webhook endpoint is accessible
 - Verify signing secret matches in .env.local
 
 ### Checkout not redirecting
+
 - Check NEXTAUTH_URL is set correctly
 - Verify price IDs are correct in .env.local
 - Check Stripe API keys are valid
 
 ### Subscription not updating in database
+
 - Check webhook handler logs for errors
 - Verify MongoDB connection
 - Ensure userId is in webhook metadata
 
 ### Testing Cards
+
 ```
 Success: 4242 4242 4242 4242
 Decline: 4000 0000 0000 0002
@@ -237,6 +269,7 @@ Expired: 4000 0000 0000 0069
 ## Database Schema
 
 Users collection will have subscription object:
+
 ```javascript
 {
   _id: "user_id",
@@ -253,13 +286,17 @@ Users collection will have subscription object:
 ```
 
 ## Next Steps (Phase 3)
+
 After Stripe is working:
+
 - Hugging Face API integration for AI features
 - AI Chef Chatbot implementation
 - AI Recipe Generator
 - Premium feature implementation
 
 ## Support
+
 For Stripe-related issues:
+
 - [Stripe Documentation](https://stripe.com/docs)
 - [Stripe Support](https://support.stripe.com)
