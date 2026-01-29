@@ -97,6 +97,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Determine base URL - use localhost in development, production URL otherwise
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : process.env.NEXTAUTH_URL || "http://mymealmuse.com";
+
     // Create Checkout Session
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -108,8 +114,8 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXTAUTH_URL}/premium/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/premium/canceled`,
+      success_url: `${baseUrl}/premium/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/premium/canceled`,
       metadata: {
         userId: session.user.id,
         planInterval: interval,

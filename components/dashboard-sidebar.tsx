@@ -4,16 +4,61 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PremiumFeatureBadge } from "./premium/PremiumBadge";
+
+interface SubscriptionData {
+  tier?: string;
+  status?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
+interface NavItemType {
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+  badge?: string;
+  premium?: boolean;
+}
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [subscription, setSubscription] = useState<SubscriptionData>({
+    tier: "free",
+    status: "active",
+  });
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
 
-  const userTier = (session?.user as any)?.tier || "free";
+  // Fetch real subscription status from server
+  useEffect(() => {
+    async function fetchSubscription() {
+      try {
+        const response = await fetch("/api/stripe/subscription-status");
+        if (response.ok) {
+          const data = await response.json();
+          setSubscription(data.subscription || { tier: "free", status: "active" });
+        }
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+        setSubscription(
+          ((session?.user as any)?.subscription as SubscriptionData) || {
+            tier: "free",
+            status: "active",
+          }
+        );
+      } finally {
+        setSubscriptionLoaded(true);
+      }
+    }
+
+    fetchSubscription();
+  }, [session]);
+
+  const userTier = subscription.tier || "free";
   const isPremium = userTier === "premium";
 
   const handleLogout = async () => {
@@ -110,6 +155,26 @@ export function DashboardSidebar() {
       ),
       badge: "New",
     },
+    {
+      name: "Account Settings",
+      href: "/account/settings",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+        </svg>
+      ),
+    },
   ];
 
   return (
@@ -144,14 +209,14 @@ export function DashboardSidebar() {
               >
                 <span className={isActive ? "text-foreground" : "text-white/90"}>{item.icon}</span>
                 <span className="flex-1">{item.name}</span>
-                {(item as any).premium && !isPremium && <PremiumFeatureBadge />}
+                {(item as NavItemType).premium && !isPremium && <PremiumFeatureBadge />}
               </Link>
             );
           })}
         </nav>
 
         {/* Premium Upgrade CTA - Desktop */}
-        {!isPremium && (
+        {subscriptionLoaded && !isPremium && (
           <div className="px-4 mb-3">
             <Link href="/premium">
               <div
@@ -251,8 +316,38 @@ export function MobileSidebarToggle() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [subscription, setSubscription] = useState<SubscriptionData>({
+    tier: "free",
+    status: "active",
+  });
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
 
-  const userTier = (session?.user as any)?.tier || "free";
+  // Fetch real subscription status from server
+  useEffect(() => {
+    async function fetchSubscription() {
+      try {
+        const response = await fetch("/api/stripe/subscription-status");
+        if (response.ok) {
+          const data = await response.json();
+          setSubscription(data.subscription || { tier: "free", status: "active" });
+        }
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+        setSubscription(
+          ((session?.user as any)?.subscription as SubscriptionData) || {
+            tier: "free",
+            status: "active",
+          }
+        );
+      } finally {
+        setSubscriptionLoaded(true);
+      }
+    }
+
+    fetchSubscription();
+  }, [session]);
+
+  const userTier = subscription.tier || "free";
   const isPremium = userTier === "premium";
 
   const handleLogout = async () => {
@@ -436,6 +531,34 @@ export function MobileSidebarToggle() {
                   );
                 })}
               </nav>
+
+              {/* Premium Upgrade CTA - Mobile */}
+              {subscriptionLoaded && !isPremium && (
+                <div className="px-4 mb-3">
+                  <Link href="/premium" onClick={() => setIsOpen(false)}>
+                    <div
+                      className="rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                      style={{
+                        background: "linear-gradient(135deg, #E8A628 0%, #D4941F 100%)",
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl">✨</span>
+                        <span className="text-white font-bold">Go Premium</span>
+                      </div>
+                      <p className="text-white text-xs opacity-90 mb-3">
+                        Unlock AI features, unlimited favorites, and more
+                      </p>
+                      <button
+                        className="w-full bg-white text-sm font-semibold py-2 px-3 rounded-md hover:scale-105 transition-transform"
+                        style={{ color: "#E8A628" }}
+                      >
+                        Upgrade Now
+                      </button>
+                    </div>
+                  </Link>
+                </div>
+              )}
 
               {/* User Section */}
               <div className="px-4 mt-4">

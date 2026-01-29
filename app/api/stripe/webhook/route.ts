@@ -77,24 +77,33 @@ export async function POST(req: NextRequest) {
  * Handle successful checkout completion
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session, db: any) {
-  const userId = session.metadata?.userId;
+  const customerId = session.customer as string;
   const subscriptionId = session.subscription as string;
 
-  if (!userId || !subscriptionId) {
-    console.error("Missing userId or subscriptionId in checkout session");
+  if (!customerId || !subscriptionId) {
+    console.error("Missing customerId or subscriptionId in checkout session");
     return;
   }
 
   // Fetch full subscription details
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
+  // Get customer email to find user by email
+  const customer = await stripe.customers.retrieve(customerId);
+  const email = (customer as any).email;
+
+  if (!email) {
+    console.error("Missing customer email");
+    return;
+  }
+
   await db.collection("users").updateOne(
-    { _id: userId },
+    { email },
     {
       $set: {
         "subscription.tier": "premium",
         "subscription.status": subscription.status,
-        "subscription.stripeCustomerId": session.customer as string,
+        "subscription.stripeCustomerId": customerId,
         "subscription.stripeSubscriptionId": subscriptionId,
         "subscription.currentPeriodEnd": new Date(
           (subscription as any)["current_period_end"] * 1000
@@ -105,22 +114,31 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session, db: any
     }
   );
 
-  console.log(`✅ Subscription activated for user ${userId}`);
+  console.log(`✅ Subscription activated for customer ${email}`);
 }
 
 /**
  * Handle subscription updates (plan changes, renewals, etc.)
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription, db: any) {
-  const userId = subscription.metadata.userId;
+  const customerId = subscription.customer as string;
 
-  if (!userId) {
-    console.error("Missing userId in subscription metadata");
+  if (!customerId) {
+    console.error("Missing customerId in subscription");
+    return;
+  }
+
+  // Get customer email to find user by email
+  const customer = await stripe.customers.retrieve(customerId);
+  const email = (customer as any).email;
+
+  if (!email) {
+    console.error("Missing customer email");
     return;
   }
 
   await db.collection("users").updateOne(
-    { _id: userId },
+    { email },
     {
       $set: {
         "subscription.status": subscription.status,
@@ -133,22 +151,31 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription, db: 
     }
   );
 
-  console.log(`✅ Subscription updated for user ${userId}: ${subscription.status}`);
+  console.log(`✅ Subscription updated for ${email}: ${subscription.status}`);
 }
 
 /**
  * Handle subscription cancellation/deletion
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription, db: any) {
-  const userId = subscription.metadata.userId;
+  const customerId = subscription.customer as string;
 
-  if (!userId) {
-    console.error("Missing userId in subscription metadata");
+  if (!customerId) {
+    console.error("Missing customerId in subscription");
+    return;
+  }
+
+  // Get customer email to find user by email
+  const customer = await stripe.customers.retrieve(customerId);
+  const email = (customer as any).email;
+
+  if (!email) {
+    console.error("Missing customer email");
     return;
   }
 
   await db.collection("users").updateOne(
-    { _id: userId },
+    { email },
     {
       $set: {
         "subscription.tier": "free",
@@ -159,25 +186,31 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, db: 
     }
   );
 
-  console.log(`✅ Subscription deleted for user ${userId}`);
+  console.log(`✅ Subscription deleted for ${email}`);
 }
 
 /**
  * Handle successful payment
  */
 async function handlePaymentSucceeded(invoice: Stripe.Invoice, db: any) {
-  const subscriptionId = (invoice as any).subscription as string;
+  const customerId = invoice.customer as string;
 
+  if (!customerId) return;
+
+  // Get customer email to find user by email
+  const customer = await stripe.customers.retrieve(customerId);
+  const email = (customer as any).email;
+
+  if (!email) return;
+
+  const subscriptionId = (invoice as any).subscription as string;
   if (!subscriptionId) return;
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  const userId = subscription.metadata.userId;
-
-  if (!userId) return;
 
   // Update payment status and period
   await db.collection("users").updateOne(
-    { _id: userId },
+    { email },
     {
       $set: {
         "subscription.status": "active",
@@ -189,24 +222,25 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice, db: any) {
     }
   );
 
-  console.log(`✅ Payment succeeded for user ${userId}`);
+  console.log(`✅ Payment succeeded for ${email}`);
 }
 
 /**
  * Handle failed payment
  */
 async function handlePaymentFailed(invoice: Stripe.Invoice, db: any) {
-  const subscriptionId = (invoice as any).subscription as string;
+  const customerId = invoice.customer as string;
 
-  if (!subscriptionId) return;
+  if (!customerId) return;
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  const userId = subscription.metadata.userId;
+  // Get customer email to find user by email
+  const customer = await stripe.customers.retrieve(customerId);
+  const email = (customer as any).email;
 
-  if (!userId) return;
+  if (!email) return;
 
   await db.collection("users").updateOne(
-    { _id: userId },
+    { email },
     {
       $set: {
         "subscription.status": "past_due",
@@ -215,5 +249,5 @@ async function handlePaymentFailed(invoice: Stripe.Invoice, db: any) {
     }
   );
 
-  console.log(`⚠️ Payment failed for user ${userId}`);
+  console.log(`⚠️ Payment failed for ${email}`);
 }

@@ -1,24 +1,76 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PremiumBadge } from "./PremiumBadge";
 import Link from "next/link";
-import { getDaysRemaining, formatSubscriptionStatus } from "@/lib/subscription-helpers";
+import {
+  getDaysRemaining,
+  formatSubscriptionStatus,
+  type UserSubscription,
+} from "@/lib/subscription-helpers";
+
+interface SubscriptionData {
+  tier?: string;
+  status?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+}
 
 export function SubscriptionStatus() {
   const { data: session } = useSession();
-
-  const subscription = (session?.user as any)?.subscription || {
+  const [subscription, setSubscription] = useState<SubscriptionData>({
     tier: "free",
     status: "active",
-  };
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch the current subscription status from the server
+    // This ensures we always get the latest data from the database
+    async function fetchSubscription() {
+      try {
+        const response = await fetch("/api/stripe/subscription-status");
+        if (response.ok) {
+          const data = await response.json();
+          setSubscription(data.subscription || { tier: "free", status: "active" });
+        }
+      } catch (error) {
+        console.error("Failed to fetch subscription:", error);
+        // Fall back to session data
+        setSubscription(
+          ((session?.user as any)?.subscription as SubscriptionData) || {
+            tier: "free",
+            status: "active",
+          }
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSubscription();
+  }, [session]);
 
   const isPremium = subscription.tier === "premium";
   const daysRemaining = subscription.currentPeriodEnd
-    ? getDaysRemaining(subscription.currentPeriodEnd)
+    ? getDaysRemaining(new Date(subscription.currentPeriodEnd))
     : null;
+
+  if (loading) {
+    return (
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle style={{ color: "#0D5F3A" }}>Your Subscription</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Loading...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="shadow-lg">
@@ -36,7 +88,7 @@ export function SubscriptionStatus() {
           </p>
           {isPremium && (
             <p className="text-sm text-muted-foreground mt-1">
-              Status: {formatSubscriptionStatus(subscription)}
+              Status: {formatSubscriptionStatus(subscription as UserSubscription)}
             </p>
           )}
         </div>
