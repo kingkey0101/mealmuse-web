@@ -40,7 +40,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-muted/30 to-background px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-3 sm:px-4 py-8 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -51,35 +51,40 @@ export default function RegisterPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-10 text-center"
+          className="mb-8 sm:mb-10 text-center"
         >
           <img
             src="/favicon.ico"
             alt="MealMuse Logo"
-            className="h-16 w-16 mx-auto mb-3 drop-shadow-lg"
+            className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-2 sm:mb-3 drop-shadow-lg"
           />
-          <h1 className="font-serif text-4xl font-bold mb-3" style={{ color: "#7A8854" }}>
+          <h1
+            className="font-serif text-3xl sm:text-4xl font-bold mb-2 sm:mb-3"
+            style={{ color: "#7A8854" }}
+          >
             MealMuse
           </h1>
-          <p className="text-muted-foreground text-base">Start your culinary journey today</p>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Start your culinary journey today
+          </p>
         </motion.div>
 
         <Card className="shadow-2xl border-border/50 backdrop-blur-sm">
-          <CardHeader className="space-y-3 text-center pb-8 pt-8">
-            <CardTitle className="text-2xl font-semibold">Create an account</CardTitle>
-            <CardDescription className="text-base">
+          <CardHeader className="space-y-2 sm:space-y-3 text-center pb-6 sm:pb-8 pt-6 sm:pt-8">
+            <CardTitle className="text-xl sm:text-2xl font-semibold">Create an account</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Sign up to discover amazing recipes
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-8 pb-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="px-4 sm:px-8 pb-6 sm:pb-8">
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="space-y-2"
+                className="space-y-2 sm:space-y-3"
               >
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                <Label htmlFor="email" className="text-xs sm:text-sm font-medium text-foreground">
                   Email
                 </Label>
                 <Input
@@ -89,7 +94,7 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 text-base focus-visible:ring-2 focus-visible:ring-offset-0"
+                  className="h-10 sm:h-11 text-sm focus-visible:ring-2 focus-visible:ring-offset-0"
                   style={{ "--tw-ring-color": "#7A8854" } as React.CSSProperties}
                   disabled={isLoading}
                 />
@@ -99,9 +104,12 @@ export default function RegisterPage() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.3 }}
-                className="space-y-2"
+                className="space-y-2 sm:space-y-3"
               >
-                <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                <Label
+                  htmlFor="password"
+                  className="text-xs sm:text-sm font-medium text-foreground"
+                >
                   Password
                 </Label>
                 <div className="relative">
@@ -113,21 +121,21 @@ export default function RegisterPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="h-12 pr-20 text-base focus-visible:ring-2 focus-visible:ring-offset-0"
+                    className="h-10 sm:h-11 pr-16 sm:pr-20 text-sm focus-visible:ring-2 focus-visible:ring-offset-0"
                     style={{ "--tw-ring-color": "#7A8854" } as React.CSSProperties}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium transition-colors"
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs sm:text-sm font-medium transition-colors"
                     style={{ color: "#7A8854" }}
                     disabled={isLoading}
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-2 sm:mt-3">
                   Must be at least 6 characters long
                 </p>
               </motion.div>
@@ -149,7 +157,7 @@ export default function RegisterPage() {
               >
                 <Button
                   type="submit"
-                  className="w-full h-12 font-semibold text-base transition-all hover:scale-[1.02]"
+                  className="w-full h-10 sm:h-11 font-semibold text-sm sm:text-base transition-all hover:scale-[1.02]"
                   style={{ backgroundColor: "#7A8854" }}
                   disabled={isLoading}
                 >
@@ -170,7 +178,8 @@ export default function RegisterPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      Creating account...
+                      <span className="hidden xs:inline">Creating account...</span>
+                      <span className="xs:hidden">Creating...</span>
                     </span>
                   ) : (
                     "Create account"
@@ -178,12 +187,12 @@ export default function RegisterPage() {
                 </Button>
               </motion.div>
 
-              <div className="relative my-8">
+              <div className="relative my-6 sm:my-8">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border" />
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-card px-4 text-muted-foreground">
+                <div className="relative flex justify-center text-xs sm:text-sm">
+                  <span className="bg-card px-3 sm:px-4 text-muted-foreground">
                     Already have an account?
                   </span>
                 </div>
@@ -197,7 +206,7 @@ export default function RegisterPage() {
               >
                 <Link
                   href="/auth/login"
-                  className="text-base font-semibold transition-colors hover:underline"
+                  className="text-sm sm:text-base font-semibold transition-colors hover:underline"
                   style={{ color: "#7A8854" }}
                 >
                   Log in instead →
@@ -211,7 +220,7 @@ export default function RegisterPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-8 text-center text-xs text-muted-foreground"
+          className="mt-6 sm:mt-8 text-center text-xs text-muted-foreground px-2"
         >
           By creating an account, you agree to our Terms of Service and Privacy Policy
         </motion.p>

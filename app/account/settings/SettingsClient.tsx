@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 interface SubscriptionData {
@@ -11,6 +13,11 @@ interface SubscriptionData {
   status?: string;
   currentPeriodEnd?: string;
   cancelAtPeriodEnd?: boolean;
+}
+
+interface UserProfile {
+  name?: string;
+  phoneNumber?: string;
 }
 
 export default function SettingsClient({ userEmail }: { userEmail: string }) {
@@ -21,6 +28,10 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
   });
   const [loading, setLoading] = useState(true);
   const [managingPortal, setManagingPortal] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState<UserProfile>({ name: "", phoneNumber: "" });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState("");
 
   useEffect(() => {
     async function fetchSubscription() {
@@ -37,7 +48,23 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
       }
     }
 
+    async function fetchProfile() {
+      try {
+        const response = await fetch("/api/user/profile");
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData({
+            name: data.name || "",
+            phoneNumber: data.phoneNumber || "",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    }
+
     fetchSubscription();
+    fetchProfile();
   }, []);
 
   const isPremium = subscription.tier === "premium";
@@ -58,22 +85,123 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
     }
   };
 
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true);
+    setProfileMessage("");
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+
+      if (response.ok) {
+        setProfileMessage("Profile updated successfully!");
+        setIsEditingProfile(false);
+        setTimeout(() => setProfileMessage(""), 3000);
+      } else {
+        const error = await response.json();
+        setProfileMessage(error.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      setProfileMessage("Failed to update profile. Please try again.");
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Account Information */}
       <Card className="shadow-lg">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle style={{ color: "#0D5F3A" }}>Account Information</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => (isEditingProfile ? handleSaveProfile() : setIsEditingProfile(true))}
+            disabled={isSavingProfile}
+            style={
+              isEditingProfile ? { backgroundColor: "#0D5F3A", color: "white", border: "none" } : {}
+            }
+          >
+            {isSavingProfile ? "Saving..." : isEditingProfile ? "Save Changes" : "Edit Profile"}
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Email Address</p>
-            <p className="text-lg font-medium">{userEmail}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Member Since</p>
-            <p className="text-lg font-medium">{session?.user?.email ? "Active" : "Loading..."}</p>
-          </div>
+          {profileMessage && (
+            <div
+              className="p-3 rounded-lg text-sm"
+              style={{
+                backgroundColor: profileMessage.includes("success")
+                  ? "rgba(31, 162, 68, 0.1)"
+                  : "rgba(220, 38, 38, 0.1)",
+                color: profileMessage.includes("success") ? "#1FA244" : "#DC2626",
+              }}
+            >
+              {profileMessage}
+            </div>
+          )}
+
+          {isEditingProfile ? (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Full Name
+                </Label>
+                <Input
+                  id="name"
+                  value={profileData.name || ""}
+                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                  placeholder="Enter your full name"
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium">
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={profileData.phoneNumber || ""}
+                  onChange={(e) => setProfileData({ ...profileData, phoneNumber: e.target.value })}
+                  placeholder="Enter your phone number"
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Email Address</Label>
+                <Input type="email" value={userEmail} disabled className="mt-2 bg-gray-100" />
+                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {profileData.name && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Full Name</p>
+                  <p className="text-lg font-medium">{profileData.name}</p>
+                </div>
+              )}
+              {profileData.phoneNumber && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Phone Number</p>
+                  <p className="text-lg font-medium">{profileData.phoneNumber}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Email Address</p>
+                <p className="text-lg font-medium">{userEmail}</p>
+              </div>
+              {!profileData.name && !profileData.phoneNumber && (
+                <p className="text-sm text-muted-foreground italic">
+                  No profile information set. Click Edit Profile to add your details.
+                </p>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 

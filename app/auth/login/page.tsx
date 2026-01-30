@@ -39,7 +39,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-3 sm:px-4 py-8 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -50,30 +50,35 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-10 text-center"
+          className="mb-8 sm:mb-10 text-center"
         >
           <img
             src="/favicon.ico"
             alt="MealMuse Logo"
-            className="h-16 w-16 mx-auto mb-3 drop-shadow-lg"
+            className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-2 sm:mb-3 drop-shadow-lg"
           />
-          <h1 className="font-serif text-4xl font-bold mb-3" style={{ color: "#7A8854" }}>
+          <h1
+            className="font-serif text-3xl sm:text-4xl font-bold mb-2 sm:mb-3"
+            style={{ color: "#7A8854" }}
+          >
             MealMuse
           </h1>
-          <p className="text-muted-foreground text-base">Welcome back to your culinary journey</p>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Welcome back to your culinary journey
+          </p>
         </motion.div>
 
         <Card className="shadow-2xl border-border/50 backdrop-blur-sm">
-          <CardHeader className="space-y-3 text-center pb-8 pt-8">
-            <CardTitle className="text-2xl font-semibold">Log in</CardTitle>
-            <CardDescription className="text-base">
+          <CardHeader className="space-y-2 sm:space-y-3 text-center pb-6 sm:pb-8 pt-6 sm:pt-8">
+            <CardTitle className="text-xl sm:text-2xl font-semibold">Log in</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Enter your credentials to access your recipes
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-8 pb-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="px-4 sm:px-8 pb-6 sm:pb-8">
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="text-xs sm:text-sm font-medium">
                   Email
                 </Label>
                 <Input
@@ -83,13 +88,13 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11"
+                  className="h-10 sm:h-11 text-sm"
                   disabled={isLoading}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
+                <Label htmlFor="password" className="text-xs sm:text-sm font-medium">
                   Password
                 </Label>
                 <div className="relative">
@@ -100,13 +105,13 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="h-11 pr-10"
+                    className="h-10 sm:h-11 pr-10 text-sm"
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
                     disabled={isLoading}
                   >
                     {showPassword ? "Hide" : "Show"}
@@ -118,9 +123,11 @@ export default function LoginPage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-lg bg-destructive/10 border border-destructive/50 p-4"
+                  className="rounded-lg bg-destructive/10 border border-destructive/50 p-3 sm:p-4"
                 >
-                  <p className="text-sm font-medium text-destructive text-center">{error}</p>
+                  <p className="text-xs sm:text-sm font-medium text-destructive text-center">
+                    {error}
+                  </p>
                 </motion.div>
               )}
 
@@ -131,7 +138,7 @@ export default function LoginPage() {
               >
                 <Button
                   type="submit"
-                  className="w-full h-12 font-semibold text-base transition-all hover:scale-[1.02]"
+                  className="w-full h-10 sm:h-12 font-semibold text-sm sm:text-base transition-all hover:scale-[1.02]"
                   style={{ backgroundColor: "#7A8854" }}
                   disabled={isLoading}
                 >

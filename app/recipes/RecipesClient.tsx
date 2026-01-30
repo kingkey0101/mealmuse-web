@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -24,6 +25,14 @@ const DIETARY_PREFERENCES = [
 const COOKING_TIMES = ["All", "Under 30 min", "30-60 min", "Over 60 min"];
 
 export default function RecipesClient({ initialPage = 1 }: { initialPage?: number }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const didMountRef = useRef(false);
+  const prevFiltersRef = useRef({
+    skillFilter: "All",
+    dietaryFilter: "All",
+    timeFilter: "All",
+  });
   const [recipes, setRecipes] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,6 +43,32 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const [dietaryFilter, setDietaryFilter] = useState("All");
   const [timeFilter, setTimeFilter] = useState("All");
   const { data: session } = useSession();
+
+  // Sync current page from URL (supports back/forward and hard refresh)
+  useEffect(() => {
+    const param = searchParams.get("page");
+    const parsed = param ? parseInt(param, 10) : initialPage;
+    const nextPage = Number.isNaN(parsed) ? 1 : Math.max(1, parsed);
+
+    if (nextPage !== currentPage) {
+      setCurrentPage(nextPage);
+    }
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("mealmuse:return-to-recipes", `/recipes?page=${nextPage}`);
+    }
+  }, [searchParams, initialPage, currentPage]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const param = searchParams.get("page");
+    if (param) return;
+
+    const stored = sessionStorage.getItem("mealmuse:return-to-recipes");
+    if (stored && stored !== "/recipes?page=1") {
+      router.replace(stored, { scroll: false });
+    }
+  }, [searchParams, router]);
 
   // Generate gradient background based on cuisine type
   const getRecipeGradient = (recipe: any) => {
@@ -158,10 +193,41 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const endIndex = startIndex + RECIPES_PER_PAGE;
   const currentRecipes = filteredRecipes.slice(startIndex, endIndex);
 
+  const updatePage = useCallback(
+    (page: number) => {
+      const normalized = Math.max(1, page);
+      const bounded = totalPages > 0 ? Math.min(totalPages, normalized) : normalized;
+      const url = `/recipes?page=${bounded}`;
+      setCurrentPage(bounded);
+      router.push(url, { scroll: false });
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("mealmuse:return-to-recipes", url);
+      }
+    },
+    [router, totalPages]
+  );
+
   // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [skillFilter, dietaryFilter, timeFilter]);
+    const prev = prevFiltersRef.current;
+    const filtersChanged =
+      prev.skillFilter !== skillFilter ||
+      prev.dietaryFilter !== dietaryFilter ||
+      prev.timeFilter !== timeFilter;
+
+    prevFiltersRef.current = { skillFilter, dietaryFilter, timeFilter };
+
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
+    if (!filtersChanged) {
+      return;
+    }
+
+    updatePage(1);
+  }, [skillFilter, dietaryFilter, timeFilter, updatePage]);
 
   const toggleFavorite = async (recipeId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -293,16 +359,19 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
     <>
       {/* Filter Controls */}
       <div className="mb-6 space-y-4">
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Skill Level Filter */}
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium mb-2" style={{ color: "#7A8854" }}>
+          <div>
+            <label
+              className="block text-xs sm:text-sm font-medium mb-2"
+              style={{ color: "#7A8854" }}
+            >
               Skill Level
             </label>
             <select
               value={skillFilter}
               onChange={(e) => setSkillFilter(e.target.value)}
-              className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
+              className="w-full px-3 sm:px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all text-sm"
               style={{
                 borderColor: "#A28F7A",
               }}
@@ -316,14 +385,17 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
           </div>
 
           {/* Dietary Preference Filter */}
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium mb-2" style={{ color: "#7A8854" }}>
-              Dietary Preference
+          <div>
+            <label
+              className="block text-xs sm:text-sm font-medium mb-2"
+              style={{ color: "#7A8854" }}
+            >
+              Dietary
             </label>
             <select
               value={dietaryFilter}
               onChange={(e) => setDietaryFilter(e.target.value)}
-              className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
+              className="w-full px-3 sm:px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all text-sm"
               style={{
                 borderColor: "#A28F7A",
               }}
@@ -337,14 +409,17 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
           </div>
 
           {/* Cooking Time Filter */}
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium mb-2" style={{ color: "#7A8854" }}>
+          <div>
+            <label
+              className="block text-xs sm:text-sm font-medium mb-2"
+              style={{ color: "#7A8854" }}
+            >
               Cooking Time
             </label>
             <select
               value={timeFilter}
               onChange={(e) => setTimeFilter(e.target.value)}
-              className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
+              className="w-full px-3 sm:px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 transition-all text-sm"
               style={{
                 borderColor: "#A28F7A",
               }}
@@ -361,11 +436,11 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
         {/* Active Filters Display */}
         {(skillFilter !== "All" || dietaryFilter !== "All" || timeFilter !== "All") && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">Active filters:</span>
             {skillFilter !== "All" && (
               <button
                 onClick={() => setSkillFilter("All")}
-                className="px-3 py-1 text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
+                className="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: "#7A8854", color: "white" }}
               >
                 {skillFilter}
@@ -382,7 +457,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
             {dietaryFilter !== "All" && (
               <button
                 onClick={() => setDietaryFilter("All")}
-                className="px-3 py-1 text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
+                className="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-full flex items-center gap-2 transition-all hover:opacity-80"
                 style={{ backgroundColor: "#7A8854", color: "white" }}
               >
                 {dietaryFilter}
@@ -447,6 +522,14 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
             >
               <Link
                 href={`/recipes/${recipe._id}?page=${currentPage}`}
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    sessionStorage.setItem(
+                      "mealmuse:return-to-recipes",
+                      `/recipes?page=${currentPage}`
+                    );
+                  }
+                }}
                 className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-xl block"
                 style={{ "--focus-ring-color": "#7A8854" } as any}
               >
@@ -556,7 +639,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
           <Button
             variant="outline"
             onClick={() => {
-              setCurrentPage((prev) => Math.max(1, prev - 1));
+              updatePage(Math.max(1, currentPage - 1));
               setTimeout(() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
                 document.documentElement.scrollTop = 0;
@@ -586,7 +669,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
                 key={page}
                 variant={currentPage === page ? "default" : "outline"}
                 onClick={() => {
-                  setCurrentPage(page);
+                  updatePage(page);
                   setTimeout(() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                     document.documentElement.scrollTop = 0;
@@ -607,7 +690,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
           <Button
             variant="outline"
             onClick={() => {
-              setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+              updatePage(Math.min(totalPages, currentPage + 1));
               setTimeout(() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
                 document.documentElement.scrollTop = 0;

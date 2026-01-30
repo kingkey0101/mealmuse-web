@@ -443,9 +443,9 @@ export function PremiumPageClient() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                We're rewarding our first 50 premium subscribers with a special locked-in rate of
-                $6.99/month - that's 30% off regular pricing and it never increases. This is our way
-                of saying thank you for believing in MealMuse early!
+                We&apos;re rewarding our first 50 premium subscribers with a special locked-in rate
+                of $6.99/month - that&apos;s 30% off regular pricing and it never increases. This is
+                our way of saying thank you for believing in MealMuse early!
               </p>
             </CardContent>
           </Card>

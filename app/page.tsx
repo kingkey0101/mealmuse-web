@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -25,7 +26,7 @@ export default function Home() {
   }, [status, router]);
 
   if (status === "loading" || (status === "authenticated" && !mounted)) {
-    return null;
+    return <LoadingSpinner />;
   }
 
   return (
@@ -34,7 +35,7 @@ export default function Home() {
       <section className="relative overflow-hidden" style={{ backgroundColor: "#0D5F3A" }}>
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 md:py-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -46,9 +47,13 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
-              <img src="/favicon.ico" alt="MealMuse Logo" className="h-40 w-40 drop-shadow-2xl" />
+              <img
+                src="/favicon.ico"
+                alt="MealMuse Logo"
+                className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 drop-shadow-2xl"
+              />
             </motion.div>
 
             {/* Badge */}
@@ -56,10 +61,15 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm font-medium"
+              className="mb-4 sm:mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium"
               style={{ color: "#E5D1DA" }}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-3 w-3 sm:h-4 sm:w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -67,7 +77,8 @@ export default function Home() {
                   d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                 />
               </svg>
-              Your AI-Powered Recipe Assistant
+              <span className="hidden xs:inline">Your AI-Powered Recipe Assistant</span>
+              <span className="xs:hidden">AI Recipe Assistant</span>
             </motion.div>
 
             {/* Headline with Serif Font in Beige */}
@@ -75,14 +86,15 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="mb-6 max-w-4xl font-serif text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight"
+              className="mb-4 sm:mb-6 max-w-4xl font-serif text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight"
               style={{
                 color: "#E5D1DA",
                 fontFamily: "Georgia, Cambria, 'Times New Roman', Times, serif",
               }}
             >
               Discover Your Next
-              <br />
+              <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>
               Culinary Adventure
             </motion.h1>
 
@@ -91,7 +103,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-10 max-w-2xl text-lg sm:text-xl leading-relaxed"
+              className="mb-8 sm:mb-10 max-w-2xl text-base sm:text-lg md:text-xl leading-relaxed px-2 sm:px-0"
               style={{ color: "rgba(229, 209, 218, 0.9)" }}
             >
               Chat with your personal AI chef, explore curated recipes, and master every dish with
@@ -104,12 +116,12 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4 sm:gap-6"
+              className="flex flex-col xs:flex-row items-center gap-3 sm:gap-4 md:gap-6 w-full xs:w-auto justify-center max-w-2xl mx-auto"
             >
-              <Link href="/auth/register">
+              <Link href="/auth/register" className="w-full xs:w-72 lg:w-64 flex-shrink-0">
                 <Button
                   size="lg"
-                  className="h-14 gap-2 px-10 text-base font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                  className="w-full h-12 xs:h-12 sm:h-12 lg:h-11 gap-2 px-4 xs:px-6 sm:px-7 lg:px-6 text-sm xs:text-sm sm:text-base lg:text-sm font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105 whitespace-nowrap"
                   style={{
                     backgroundColor: "#E8A628",
                     color: "#1A1A1A",
@@ -117,7 +129,12 @@ export default function Home() {
                   }}
                 >
                   Start Cooking Free
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg
+                    className="h-4 w-4 xs:h-5 xs:w-5 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -127,10 +144,10 @@ export default function Home() {
                   </svg>
                 </Button>
               </Link>
-              <Link href="/auth/login">
+              <Link href="/auth/login" className="w-full xs:w-72 lg:w-64 flex-shrink-0">
                 <Button
                   size="lg"
-                  className="h-14 px-10 text-base font-semibold border-2 shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                  className="w-full h-12 xs:h-12 sm:h-12 lg:h-11 px-4 xs:px-6 sm:px-7 lg:px-6 text-sm xs:text-sm sm:text-base lg:text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 whitespace-nowrap"
                   style={{
                     backgroundColor: "#E5D1DA",
                     color: "#1A1A1A",
