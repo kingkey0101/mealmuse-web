@@ -14,7 +14,20 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db();
 
-    const recipes = await db.collection("recipes").find({}).toArray();
+    // Get recipes - show:
+    // 1. All approved recipes (including seeded recipes)
+    // 2. All recipes without userId (seeded from DB)
+    // 3. User's own recipes (regardless of status)
+    const recipes = await db
+      .collection("recipes")
+      .find({
+        $or: [
+          { status: "approved" }, // Approved recipes visible to all
+          { userId: { $exists: false } }, // Seeded recipes (no userId)
+          { userId: session.user.id }, // Own recipes visible regardless of status
+        ],
+      })
+      .toArray();
 
     return NextResponse.json(recipes, { status: 200 });
   } catch (error) {
@@ -32,7 +45,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { title, cuisine, skill, dietary, cookingTime, ingredients, steps, equipment } = body;
+    const {
+      title,
+      cuisine,
+      skill,
+      dietary,
+      cookingTime,
+      ingredients,
+      steps,
+      equipment,
+      source,
+      generatedByAI,
+      aiInteractionId,
+      searchIntent,
+    } = body;
 
     // Validate required fields
     if (!title || !cuisine || !skill || !ingredients || !steps || !equipment) {
@@ -64,11 +90,32 @@ export async function POST(req: NextRequest) {
       steps,
       equipment,
       userId: session.user.id,
+      source: source || "user_generated",
+      generatedByAI: generatedByAI || null,
+      searchIntent: searchIntent || null,
+      status: "pending", // New recipes start as pending for approval
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     const result = await db.collection("recipes").insertOne(recipe);
+
+    if (aiInteractionId) {
+      try {
+        const { ObjectId } = await import("mongodb");
+        await db.collection("ai_interactions").updateOne(
+          { _id: new ObjectId(aiInteractionId), userId: session.user.id },
+          {
+            $set: {
+              recipeId: result.insertedId.toString(),
+              userSavedRecipe: true,
+            },
+          }
+        );
+      } catch (err) {
+        console.error("Failed to link ai_interactions to recipe:", err);
+      }
+    }
 
     return NextResponse.json(
       {

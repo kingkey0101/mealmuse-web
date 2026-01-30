@@ -124,6 +124,54 @@ export default function ShoppingListClient() {
     }
   };
 
+  const selectAllItems = async () => {
+    // Optimistically update all items to checked
+    const updatedItems = items.map((item) => ({ ...item, checked: true }));
+    setItems(updatedItems);
+
+    try {
+      // Update each unchecked item
+      await Promise.all(
+        items
+          .filter((item) => !item.checked)
+          .map((item) =>
+            fetch("/api/shopping-list", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ itemId: item.id, checked: true }),
+            })
+          )
+      );
+    } catch (error) {
+      console.error("Error selecting all items:", error);
+      fetchShoppingList(); // Refetch on error
+    }
+  };
+
+  const selectNoneItems = async () => {
+    // Optimistically update all items to unchecked
+    const updatedItems = items.map((item) => ({ ...item, checked: false }));
+    setItems(updatedItems);
+
+    try {
+      // Update each checked item
+      await Promise.all(
+        items
+          .filter((item) => item.checked)
+          .map((item) =>
+            fetch("/api/shopping-list", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ itemId: item.id, checked: false }),
+            })
+          )
+      );
+    } catch (error) {
+      console.error("Error unchecking all items:", error);
+      fetchShoppingList(); // Refetch on error
+    }
+  };
+
   const uncheckedItems = items.filter((item) => !item.checked);
   const checkedItems = items.filter((item) => item.checked);
 
@@ -143,65 +191,95 @@ export default function ShoppingListClient() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: "#2D2D2D" }}>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: "#2D2D2D" }}>
             Shopping List
           </h1>
-          <p className="mt-2 text-muted-foreground">Keep track of ingredients you need to buy</p>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+            Keep track of ingredients you need to buy
+          </p>
         </div>
-        {checkedItems.length > 0 && (
-          <Button
-            onClick={clearCheckedItems}
-            variant="outline"
-            className="border-2"
-            style={{ borderColor: "#A28F7A", color: "#7A8854" }}
-          >
-            Clear Checked ({checkedItems.length})
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2 sm:gap-3">
+          {items.length > 0 && (
+            <>
+              {uncheckedItems.length > 0 && (
+                <Button
+                  onClick={selectAllItems}
+                  variant="outline"
+                  className="border-2 text-xs sm:text-sm"
+                  style={{ borderColor: "#7A8854", color: "#7A8854" }}
+                >
+                  ✓ Select All
+                </Button>
+              )}
+              {checkedItems.length > 0 && (
+                <>
+                  <Button
+                    onClick={selectNoneItems}
+                    variant="outline"
+                    className="border-2 text-xs sm:text-sm"
+                    style={{ borderColor: "#7A8854", color: "#7A8854" }}
+                  >
+                    ↺ Uncheck All
+                  </Button>
+                  <Button
+                    onClick={clearCheckedItems}
+                    variant="outline"
+                    className="border-2 text-xs sm:text-sm"
+                    style={{ borderColor: "#A28F7A", color: "#7A8854" }}
+                  >
+                    🗑️ Clear ({checkedItems.length})
+                  </Button>
+                </>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Add Item Form */}
       <Card className="border-2" style={{ borderColor: "#A28F7A" }}>
         <CardHeader style={{ backgroundColor: "#7A8854" }}>
-          <CardTitle className="text-white">Add New Item</CardTitle>
+          <CardTitle className="text-white text-lg sm:text-xl">Add New Item</CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <form onSubmit={addItem} className="flex flex-wrap gap-3">
+        <CardContent className="p-4 sm:p-6">
+          <form onSubmit={addItem} className="flex flex-col gap-3">
             <Input
               type="text"
               placeholder="Item name (e.g., Tomatoes)"
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
-              className="flex-1 min-w-[200px] border-2"
+              className="border-2 text-sm"
               style={{ borderColor: "#A28F7A" }}
               required
             />
-            <Input
-              type="number"
-              placeholder="Qty"
-              value={newItemQuantity}
-              onChange={(e) => setNewItemQuantity(e.target.value)}
-              className="w-20 border-2"
-              style={{ borderColor: "#A28F7A" }}
-              min="0"
-              step="0.1"
-            />
-            <Input
-              type="text"
-              placeholder="Unit (lbs, oz, etc.)"
-              value={newItemUnit}
-              onChange={(e) => setNewItemUnit(e.target.value)}
-              className="w-32 border-2"
-              style={{ borderColor: "#A28F7A" }}
-            />
+            <div className="flex gap-3">
+              <Input
+                type="number"
+                placeholder="Qty"
+                value={newItemQuantity}
+                onChange={(e) => setNewItemQuantity(e.target.value)}
+                className="flex-1 min-w-16 border-2 text-sm"
+                style={{ borderColor: "#A28F7A" }}
+                min="0"
+                step="0.1"
+              />
+              <Input
+                type="text"
+                placeholder="Unit"
+                value={newItemUnit}
+                onChange={(e) => setNewItemUnit(e.target.value)}
+                className="flex-1 min-w-20 border-2 text-sm"
+                style={{ borderColor: "#A28F7A" }}
+              />
+            </div>
             <Button
               type="submit"
               disabled={adding || !newItemName.trim()}
-              className="shadow-md"
+              className="w-full shadow-md text-sm sm:text-base"
               style={{ backgroundColor: "#7A8854", color: "#FFFFFF" }}
             >
               {adding ? "Adding..." : "Add Item"}
@@ -213,9 +291,11 @@ export default function ShoppingListClient() {
       {/* Shopping List */}
       <Card className="border-2" style={{ borderColor: "#A28F7A" }}>
         <CardHeader style={{ backgroundColor: "#E5D1DA" }}>
-          <CardTitle style={{ color: "#2D2D2D" }}>Items to Buy ({uncheckedItems.length})</CardTitle>
+          <CardTitle style={{ color: "#2D2D2D" }} className="text-lg sm:text-xl">
+            Items to Buy ({uncheckedItems.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           {items.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <svg
@@ -236,38 +316,43 @@ export default function ShoppingListClient() {
               <p className="text-sm mt-1">Add items above to get started</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               <AnimatePresence>
-                {uncheckedItems.map((item) => (
+                {items.map((item) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
-                    className="flex items-center gap-3 p-3 rounded-lg border-2 hover:shadow-md transition-all"
+                    className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 transition-all ${
+                      item.checked ? "bg-muted/30" : "hover:shadow-md"
+                    }`}
                     style={{ borderColor: "#E5D1DA" }}
                   >
                     <input
                       type="checkbox"
                       checked={item.checked}
                       onChange={(e) => toggleItem(item.id, e.target.checked)}
-                      className="h-5 w-5 rounded cursor-pointer"
+                      className="h-5 w-5 rounded cursor-pointer flex-shrink-0"
                       style={{ accentColor: "#7A8854" }}
                     />
-                    <div className="flex-1">
-                      <p className="font-medium" style={{ color: "#2D2D2D" }}>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`font-medium text-sm sm:text-base break-words ${item.checked ? "line-through opacity-60" : ""}`}
+                        style={{ color: "#2D2D2D" }}
+                      >
                         {item.name}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {item.quantity} {item.unit}
                       </p>
                     </div>
                     <button
                       onClick={() => deleteItem(item.id)}
-                      className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                      className="p-1.5 sm:p-2 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
                     >
                       <svg
-                        className="h-5 w-5 text-red-500"
+                        className="h-4 w-4 sm:h-5 sm:w-5 text-red-500"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -283,65 +368,6 @@ export default function ShoppingListClient() {
                   </motion.div>
                 ))}
               </AnimatePresence>
-
-              {checkedItems.length > 0 && (
-                <>
-                  <div className="pt-6 mt-6 border-t-2" style={{ borderColor: "#E5D1DA" }}>
-                    <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                      Checked Items ({checkedItems.length})
-                    </h3>
-                  </div>
-                  <AnimatePresence>
-                    {checkedItems.map((item) => (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        className="flex items-center gap-3 p-3 rounded-lg border-2 bg-muted/30"
-                        style={{ borderColor: "#E5D1DA" }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={item.checked}
-                          onChange={(e) => toggleItem(item.id, e.target.checked)}
-                          className="h-5 w-5 rounded cursor-pointer"
-                          style={{ accentColor: "#7A8854" }}
-                        />
-                        <div className="flex-1">
-                          <p
-                            className="font-medium line-through opacity-60"
-                            style={{ color: "#2D2D2D" }}
-                          >
-                            {item.name}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {item.quantity} {item.unit}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => deleteItem(item.id)}
-                          className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                        >
-                          <svg
-                            className="h-5 w-5 text-red-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </>
-              )}
             </div>
           )}
         </CardContent>

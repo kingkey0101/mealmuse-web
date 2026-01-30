@@ -20,13 +20,40 @@ export async function POST(request: Request) {
       return Response.json({ error: "Premium feature" }, { status: 403 });
     }
 
-    const { message, context } = await request.json();
+    const { message, context, conversationHistory, topic, extractedKeywords } =
+      await request.json();
 
     if (!message || typeof message !== "string") {
       return Response.json({ error: "Invalid message" }, { status: 400 });
     }
 
     const response = await aiChefChat(message, context);
+
+    const fallbackKeywords = (text: string) =>
+      text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter((word: string) => word.length > 2)
+        .slice(0, 8);
+
+    await db.collection("ai_interactions").insertOne({
+      userId: session.user.id,
+      type: "chef_chat",
+      userQuery: message,
+      aiResponse: response,
+      extractedKeywords: Array.isArray(extractedKeywords)
+        ? extractedKeywords
+        : fallbackKeywords(message),
+      extractedTags: [],
+      model: "llama-3.1-8b-instant",
+      created_at: new Date(),
+      conversationHistory: Array.isArray(conversationHistory) ? conversationHistory : [],
+      topic: typeof topic === "string" ? topic : "general_cooking",
+      feedbackScore: null,
+      userSavedRecipe: false,
+      userRatedHelpful: null,
+    });
 
     return Response.json({
       success: true,

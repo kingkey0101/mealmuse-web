@@ -20,6 +20,14 @@ const getRecipeEmoji = (recipe: any) => {
   if (title.includes("falafel")) return "🧆";
   if (title.includes("wrap") && !title.includes("falafel")) return "🌯";
   if (title.includes("shakshuka")) return "🍅";
+  if (title.includes("flatbread") || title.includes("naan") || title.includes("pita")) return "🫓";
+  if (
+    title.includes("bread") ||
+    title.includes("roll") ||
+    title.includes("bun") ||
+    title.includes("bagel")
+  )
+    return "🍞";
   if (title.includes("veggie") || title.includes("vegetable")) return "🥬";
   if (title.includes("ramen") || title.includes("noodle")) return "🍜";
   if (title.includes("salmon")) return "🍣";

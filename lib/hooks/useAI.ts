@@ -9,7 +9,22 @@ interface AIResponse {
   success: boolean;
   message?: string;
   recipe?: string;
+  recipeId?: string;
+  source?: string;
+  storedRecipe?: unknown;
   result?: string;
+  interactionId?: string;
+  conversationId?: string;
+  extractedTags?: string[];
+  extractedKeywords?: string[];
+  model?: string;
+  prompt?: string;
+  searchIntent?: {
+    cuisine?: string;
+    diet?: string;
+    skill?: string;
+    cookingTime?: number;
+  };
   error?: string;
 }
 
@@ -21,7 +36,15 @@ export function useAIChat() {
   const [error, setError] = useState<string | null>(null);
 
   const sendMessage = useCallback(
-    async (message: string, context?: string): Promise<string | null> => {
+    async (
+      message: string,
+      context?: string,
+      options?: {
+        conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
+        topic?: string;
+        extractedKeywords?: string[];
+      }
+    ): Promise<string | null> => {
       setLoading(true);
       setError(null);
 
@@ -29,7 +52,13 @@ export function useAIChat() {
         const response = await fetch("/api/ai/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message, context }),
+          body: JSON.stringify({
+            message,
+            context,
+            conversationHistory: options?.conversationHistory,
+            topic: options?.topic,
+            extractedKeywords: options?.extractedKeywords,
+          }),
         });
 
         if (!response.ok) {
@@ -61,15 +90,52 @@ export function useRecipeGenerator() {
   const [error, setError] = useState<string | null>(null);
 
   const generateRecipe = useCallback(
-    async (ingredients: string, cuisine?: string, dietary?: string[]): Promise<string | null> => {
+    async (
+      ingredients: string,
+      cuisine?: string,
+      dietary?: string[]
+    ): Promise<{
+      recipe: string;
+      interactionId?: string;
+      conversationId?: string;
+      extractedTags?: string[];
+      model?: string;
+      prompt?: string;
+      searchIntent?: {
+        cuisine?: string;
+        diet?: string;
+        skill?: string;
+        cookingTime?: number;
+      };
+    } | null> => {
       setLoading(true);
       setError(null);
 
       try {
+        const tags = [cuisine, ...(dietary || [])]
+          .filter(Boolean)
+          .map((tag) => tag!.toString().toLowerCase());
+
+        const promptParts = [
+          cuisine ? `${cuisine} cuisine` : "",
+          dietary && dietary.length > 0 ? `dietary preferences: ${dietary.join(", ")}` : "",
+          `ingredients: ${ingredients}`,
+        ].filter(Boolean);
+
+        const prompt = `Generate a recipe with ${promptParts.join(", ")}.`;
+
         const response = await fetch("/api/ai/generate-recipe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ingredients, cuisine, dietary }),
+          body: JSON.stringify({
+            ingredients,
+            cuisine,
+            dietary,
+            prompt,
+            tags,
+            cookingTimePreference: null,
+            dietaryTags: dietary || [],
+          }),
         });
 
         if (!response.ok) {
@@ -78,7 +144,19 @@ export function useRecipeGenerator() {
         }
 
         const data: AIResponse = await response.json();
-        return data.recipe || null;
+        if (!data.recipe) {
+          return null;
+        }
+
+        return {
+          recipe: data.recipe,
+          interactionId: data.interactionId,
+          conversationId: data.conversationId,
+          extractedTags: data.extractedTags,
+          model: data.model,
+          prompt: data.prompt,
+          searchIntent: data.searchIntent,
+        };
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Unknown error occurred";
         setError(errorMsg);

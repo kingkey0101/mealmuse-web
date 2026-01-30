@@ -1,13 +1,15 @@
 /**
- * Hugging Face Inference API Client
+ * Groq API Client
  * Handles all AI Chef, Recipe Generator, and content generation features
+ * Free tier with great model availability: https://console.groq.com
+ * Groq provides extremely fast inference with no cost limitations
  */
 
-const HF_API_BASE = "https://api-inference.huggingface.co/models";
-const HF_API_KEY = process.env.MM_HF_API_KEY;
+const GROQ_API_BASE = "https://api.groq.com/openai/v1";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-if (!HF_API_KEY) {
-  console.error("⚠️  MM_HF_API_KEY environment variable is not set");
+if (!GROQ_API_KEY) {
+  console.error("⚠️  GROQ_API_KEY environment variable is not set");
 }
 
 export interface HFGenerationOptions {
@@ -18,50 +20,78 @@ export interface HFGenerationOptions {
 }
 
 /**
- * Call Hugging Face Inference API for text generation
+ * Call Groq API for text generation
+ * Groq uses OpenAI-compatible chat completions API
  */
 export async function generateText(
   modelId: string,
   prompt: string,
   options: HFGenerationOptions = {}
 ): Promise<string> {
-  if (!HF_API_KEY) {
-    throw new Error("Hugging Face API key not configured");
+  if (!GROQ_API_KEY) {
+    throw new Error("Groq API key not configured");
   }
 
   try {
-    const response = await fetch(`${HF_API_BASE}/${modelId}`, {
+    const url = `${GROQ_API_BASE}/chat/completions`;
+    console.log("Calling Groq API with model:", modelId);
+
+    const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${HF_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: options.maxNewTokens || 512,
-          temperature: options.temperature || 0.7,
-          top_p: options.topP || 0.95,
-          top_k: options.topK || 50,
-        },
+        model: modelId,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        max_tokens: options.maxNewTokens || 512,
+        temperature: options.temperature || 0.7,
+        top_p: options.topP || 0.95,
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Hugging Face API error: ${response.status} - ${JSON.stringify(errorData)}`);
+      let errorMessage = `Groq API error: ${response.status}`;
+      const errorText = await response.text();
+      console.error("Groq Error Response:", errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage += ` - ${JSON.stringify(errorData)}`;
+      } catch {
+        // If not JSON, just append the text
+        errorMessage += ` - ${errorText}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-
-    // Extract generated text from response
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      return data[0].generated_text;
+    const responseText = await response.text();
+    console.log("Groq Response:", responseText);
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      throw new Error(`Invalid response format: ${responseText}`);
     }
 
-    throw new Error("Unexpected response format from Hugging Face API");
+    // Extract generated text from Groq response
+    if (
+      data.choices &&
+      data.choices[0] &&
+      data.choices[0].message &&
+      data.choices[0].message.content
+    ) {
+      return data.choices[0].message.content;
+    }
+
+    throw new Error("Unexpected response format from Groq API");
   } catch (error) {
-    console.error("Hugging Face API error:", error);
+    console.error("Groq API error:", error);
     throw error;
   }
 }
@@ -73,12 +103,13 @@ export async function aiChefChat(
   userMessage: string,
   conversationContext: string = ""
 ): Promise<string> {
+  // Use real Groq API (free tier has generous rate limits)
   const prompt = conversationContext
-    ? `${conversationContext}\n\nUser: ${userMessage}\n\nAI Chef:`
-    : `You are MealMuse's AI Chef, a friendly and knowledgeable cooking assistant. Help users with recipes, cooking techniques, and culinary questions. Keep responses concise and practical.\n\nUser: ${userMessage}\n\nAI Chef:`;
+    ? `${conversationContext}\n\nUser: ${userMessage}\n\nAssistant:`
+    : `You are MealMuse's AI Chef, a friendly and knowledgeable cooking assistant. Help users with recipes, cooking techniques, and culinary questions. Keep responses concise and practical.\n\nUser: ${userMessage}\n\nAssistant:`;
 
-  return generateText("meta-llama/Llama-2-7b-chat-hf", prompt, {
-    maxNewTokens: 300,
+  return generateText("llama-3.1-8b-instant", prompt, {
+    maxNewTokens: 1000,
     temperature: 0.7,
   });
 }
@@ -107,7 +138,7 @@ Format the recipe with:
 
 Recipe:`;
 
-  return generateText("meta-llama/Llama-2-7b-chat-hf", prompt, {
+  return generateText("llama-3.1-8b-instant", prompt, {
     maxNewTokens: 800,
     temperature: 0.7,
   });
@@ -129,7 +160,7 @@ Keep the same ingredients but adapt the instructions and techniques appropriatel
 
 Rewritten Recipe:`;
 
-  return generateText("meta-llama/Llama-2-7b-chat-hf", prompt, {
+  return generateText("llama-3.1-8b-instant", prompt, {
     maxNewTokens: 600,
     temperature: 0.7,
   });
@@ -150,7 +181,7 @@ Keep it to 3-4 sentences.
 
 Explanation:`;
 
-  return generateText("meta-llama/Llama-2-7b-chat-hf", prompt, {
+  return generateText("llama-3.1-8b-instant", prompt, {
     maxNewTokens: 150,
     temperature: 0.5,
   });
@@ -170,7 +201,7 @@ List 3-5 good alternatives with:
 
 Substitutes:`;
 
-  return generateText("meta-llama/Llama-2-7b-chat-hf", prompt, {
+  return generateText("llama-3.1-8b-instant", prompt, {
     maxNewTokens: 200,
     temperature: 0.6,
   });

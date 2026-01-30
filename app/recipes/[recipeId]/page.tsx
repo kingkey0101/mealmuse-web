@@ -3,12 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import type { Metadata } from "next";
 import { RecipeActions } from "./RecipeActions";
+import { AddToShoppingList } from "./AddToShoppingList";
+import { BackButton } from "./BackButton";
 
 interface Recipe {
   _id: string;
@@ -35,6 +36,14 @@ function getRecipeEmoji(recipe: Recipe) {
   if (title.includes("falafel")) return "🧆";
   if (title.includes("wrap") && !title.includes("falafel")) return "🌯";
   if (title.includes("shakshuka")) return "🍅";
+  if (title.includes("flatbread") || title.includes("naan") || title.includes("pita")) return "🫓";
+  if (
+    title.includes("bread") ||
+    title.includes("roll") ||
+    title.includes("bun") ||
+    title.includes("bagel")
+  )
+    return "🍞";
   if (title.includes("veggie") || title.includes("vegetable")) return "🥬";
   if (title.includes("ramen") || title.includes("noodle")) return "🍜";
   if (title.includes("salmon")) return "🍣";
@@ -138,49 +147,110 @@ export default async function RecipeDetailPage(props: {
   const recipe = await api<Recipe>(`/recipes/${recipeId}`);
 
   const isOwner = recipe.userId === session.user.id;
+  const isSeeded = !recipe.userId; // Seeded recipes have no userId
+
+  // Access control: allow if owner, seeded, or approved
+  if (!isOwner && !isSeeded && (recipe as any).status === "rejected") {
+    redirect("/recipes");
+  }
+
+  if (!isOwner && !isSeeded && (recipe as any).status === "pending") {
+    redirect("/recipes");
+  }
 
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
-        <div className="mb-6">
-          <Link href={`/recipes?page=${page}`}>
-            <Button
-              variant="ghost"
-              className="gap-2 pl-2 hover:bg-transparent"
-              style={{ color: "#0D5F3A" }}
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to recipes
-            </Button>
-          </Link>
+        <div className="mb-4 sm:mb-6">
+          <BackButton />
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Image and Metadata */}
-          <div className="lg:col-span-1 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Ingredients Card - First on Mobile */}
+          <div className="md:col-span-1 space-y-6 order-1 md:order-2">
+            <Card className="shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
+              <CardHeader className="py-6 sm:py-8">
+                <CardTitle style={{ color: "#0D5F3A" }}>Ingredients</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  {recipe.ingredients && recipe.ingredients.length > 0 ? (
+                    recipe.ingredients.map((ingredient, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span
+                          className="flex h-2 w-2 shrink-0 rounded-full mt-2"
+                          style={{ backgroundColor: "#1FA244" }}
+                        />
+                        <span className="text-sm">{ingredient}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No ingredients listed</p>
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Shopping List Card */}
+            <Card className="shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
+              <CardHeader className="py-6 sm:py-8">
+                <CardTitle style={{ color: "#0D5F3A" }}>Shopping List</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AddToShoppingList ingredients={recipe.ingredients} />
+              </CardContent>
+            </Card>
+
+            {/* Equipment Card */}
+            <Card className="shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
+              <CardHeader className="py-6 sm:py-8">
+                <CardTitle style={{ color: "#0D5F3A" }}>Equipment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {recipe.equipment && recipe.equipment.length > 0 ? (
+                    recipe.equipment.map((tool, i) => (
+                      <li key={i} className="flex items-center gap-2.5">
+                        <span
+                          className="flex h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: "#1FA244" }}
+                        />
+                        <span className="text-sm">{tool}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No equipment listed</p>
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons (if owner) */}
+            {isOwner && <RecipeActions recipeId={recipeId} />}
+          </div>
+
+          {/* Right Column - Metadata and Instructions (md:col-span-2) */}
+          <div className="md:col-span-1 lg:col-span-2 space-y-6 order-2 md:order-1">
             {/* Recipe Image with Emoji */}
             <Card className="overflow-hidden shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
               <div
-                className="relative h-64 flex items-center justify-center"
+                className="relative h-48 sm:h-56 md:h-64 lg:h-72 flex items-center justify-center"
                 style={{ background: getRecipeGradient(recipe) }}
               >
-                <div className="text-9xl">{getRecipeEmoji(recipe)}</div>
+                <div className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
+                  {getRecipeEmoji(recipe)}
+                </div>
               </div>
             </Card>
 
             {/* Metadata Card */}
             <Card className="shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
-              <CardHeader>
-                <CardTitle style={{ color: "#0D5F3A" }}>Recipe Info</CardTitle>
+              <CardHeader className="py-6 sm:py-8">
+                <CardTitle className="text-lg sm:text-xl" style={{ color: "#0D5F3A" }}>
+                  Recipe Info
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -293,65 +363,50 @@ export default async function RecipeDetailPage(props: {
 
             {/* Ingredients Card */}
             <Card className="shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
-              <CardHeader>
+              <CardHeader className="py-6 sm:py-8">
                 <CardTitle style={{ color: "#0D5F3A" }}>Ingredients</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2.5">
-                  {recipe.ingredients.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2.5">
-                      <span
-                        className="mt-2 flex h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: "#7A8854" }}
-                      />
-                      <span className="text-sm leading-relaxed">{item}</span>
-                    </li>
-                  ))}
+                <ul className="space-y-3">
+                  {recipe.ingredients && recipe.ingredients.length > 0 ? (
+                    recipe.ingredients.map((ingredient, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span
+                          className="flex h-2 w-2 shrink-0 rounded-full mt-2"
+                          style={{ backgroundColor: "#1FA244" }}
+                        />
+                        <span className="text-sm leading-relaxed">{ingredient}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No ingredients listed</p>
+                  )}
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Equipment Card */}
+            {/* Right Column - Instructions */}
             <Card className="shadow-lg" style={{ backgroundColor: "#E5D1DA" }}>
-              <CardHeader>
-                <CardTitle style={{ color: "#0D5F3A" }}>Equipment</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2.5">
-                  {recipe.equipment.map((tool, i) => (
-                    <li key={i} className="flex items-center gap-2.5">
-                      <span
-                        className="flex h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: "#1FA244" }}
-                      />
-                      <span className="text-sm">{tool}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons (if owner) */}
-            {isOwner && <RecipeActions recipeId={recipeId} />}
-          </div>
-
-          {/* Right Column - Instructions */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-lg h-full" style={{ backgroundColor: "#E5D1DA" }}>
-              <CardHeader className="border-b" style={{ borderColor: "#A28F7A" }}>
-                <CardTitle className="text-3xl" style={{ color: "#0D5F3A" }}>
+              <CardHeader className="border-b py-6 sm:py-8" style={{ borderColor: "#A28F7A" }}>
+                <CardTitle
+                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                  style={{ color: "#0D5F3A" }}
+                >
                   {recipe.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-8">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: "#0D5F3A" }}>
+              <CardContent className="pt-6 sm:pt-8 md:pt-10">
+                <h2
+                  className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6"
+                  style={{ color: "#0D5F3A" }}
+                >
                   Instructions
                 </h2>
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5">
                   {recipe.steps.map((step, i) => (
                     <div
                       key={i}
-                      className="flex gap-4 rounded-lg p-5 transition-all hover:shadow-md"
+                      className="flex gap-3 sm:gap-4 rounded-lg p-4 sm:p-5 transition-all hover:shadow-md"
                       style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}
                     >
                       <div
@@ -360,7 +415,9 @@ export default async function RecipeDetailPage(props: {
                       >
                         {i + 1}
                       </div>
-                      <p className="flex-1 leading-relaxed text-gray-800">{step}</p>
+                      <p className="flex-1 leading-relaxed text-gray-800 text-sm sm:text-base">
+                        {step}
+                      </p>
                     </div>
                   ))}
                 </div>
