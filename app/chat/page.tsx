@@ -16,7 +16,7 @@ export default async function ChatPage() {
   const client = await clientPromise;
   const db = client.db();
   const user = await db.collection("users").findOne({ email: session.user.email });
-  const isPremium = user?.subscription?.tier === "premium";
+  const isPremium = user?.subscription?.tier === "premium" || user?.subscription?.status === "active";
 
   if (!isPremium) {
     redirect("/premium");
