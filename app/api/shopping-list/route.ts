@@ -3,6 +3,16 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import clientPromise from "@/lib/db";
 
+const normalizeItemName = (name: unknown) => {
+  if (Array.isArray(name)) {
+    return name.join("").trim();
+  }
+  if (typeof name === "string") {
+    return name.trim();
+  }
+  return String(name ?? "").trim();
+};
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
@@ -16,9 +26,14 @@ export async function GET(req: NextRequest) {
 
     const shoppingList = await db.collection("shoppingLists").findOne({ userId: session.user.id });
 
+    const items = (shoppingList?.items || []).map((item: any) => ({
+      ...item,
+      name: normalizeItemName(item?.name),
+    }));
+
     return NextResponse.json(
       {
-        items: shoppingList?.items || [],
+        items,
       },
       { status: 200 }
     );
@@ -39,7 +54,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { item } = body;
 
-    if (!item || !item.name) {
+    const normalizedName = normalizeItemName(item?.name);
+
+    if (!item || !normalizedName) {
       return NextResponse.json({ error: "Item name is required" }, { status: 400 });
     }
 
@@ -48,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     const newItem = {
       id: Date.now().toString(),
-      name: item.name,
+      name: normalizedName,
       quantity: item.quantity || 1,
       unit: item.unit || "",
       checked: false,

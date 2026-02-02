@@ -192,6 +192,11 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const startIndex = (currentPage - 1) * RECIPES_PER_PAGE;
   const endIndex = startIndex + RECIPES_PER_PAGE;
   const currentRecipes = filteredRecipes.slice(startIndex, endIndex);
+  const maxPageButtons = 5;
+  const halfWindow = Math.floor(maxPageButtons / 2);
+  let paginationStart = Math.max(1, currentPage - halfWindow);
+  let paginationEnd = Math.min(totalPages, paginationStart + maxPageButtons - 1);
+  paginationStart = Math.max(1, paginationEnd - maxPageButtons + 1);
 
   const updatePage = useCallback(
     (page: number) => {
@@ -664,7 +669,10 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
           </Button>
 
           <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            {Array.from(
+              { length: Math.max(0, paginationEnd - paginationStart + 1) },
+              (_, i) => paginationStart + i
+            ).map((page) => (
               <Button
                 key={page}
                 variant={currentPage === page ? "default" : "outline"}
