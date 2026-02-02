@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { decimalToFraction } from "@/lib/fractionConverter";
 
 interface Ingredient {
   name: string;
@@ -16,11 +17,18 @@ export function AddToShoppingList({ ingredients }: { ingredients: (string | Ingr
   const [addedCount, setAddedCount] = useState<number | null>(null);
 
   const normalizedIngredients = useMemo(() => {
-    // Convert all ingredients to strings first
+    // Convert all ingredients to strings first, converting decimals to fractions
     const stringIngredients = ingredients.map(item => {
       if (typeof item === 'string') return item;
-      // Convert object format to string
-      return `${item.amount || ''} ${item.unit || ''} ${item.name || ''}`.trim();
+      // Convert object format to string with fraction amounts
+      const amount = item.amount || item.qty;
+      let formattedAmount = '';
+      
+      if (amount !== undefined && amount !== null && amount !== '') {
+        formattedAmount = decimalToFraction(amount);
+      }
+      
+      return `${formattedAmount} ${item.unit || ''} ${item.name || ''}`.trim();
     });
 
     return Array.from(

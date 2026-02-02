@@ -11,6 +11,7 @@ import { AddToShoppingList } from "./AddToShoppingList";
 import { BackButton } from "./BackButton";
 import clientPromise from "@/lib/db";
 import { ObjectId } from "mongodb";
+import { decimalToFraction } from "@/lib/fractionConverter";
 
 interface Ingredient {
   name: string;
@@ -215,8 +216,41 @@ export default async function RecipeDetailPage(props: {
     redirect("/recipes");
   }
 
+  // Generate structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org/",
+    "@type": "Recipe",
+    name: recipe.title,
+    description: `${recipe.skill} level ${Array.isArray(recipe.cuisine) ? recipe.cuisine.join(", ") : recipe.cuisine} recipe`,
+    recipeIngredient: recipe.ingredients.map((ingredient) => {
+      if (typeof ingredient === "string") {
+        return ingredient;
+      }
+      const amount = ingredient.amount || ingredient.qty;
+      const unit = ingredient.unit || "";
+      const name = ingredient.name || "";
+      return `${amount} ${unit} ${name}`.trim();
+    }),
+    recipeInstructions: recipe.steps.map((step, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      text: step,
+    })),
+    prepTime: "PT0M",
+    cookTime: recipe.cookingTime ? `PT${recipe.cookingTime}M` : "PT0M",
+    totalTime: recipe.cookingTime ? `PT${recipe.cookingTime}M` : "PT0M",
+    recipeYield: "1",
+    recipeCategory: Array.isArray(recipe.cuisine) ? recipe.cuisine[0] : recipe.cuisine,
+    keywords: recipe.dietary ? recipe.dietary.join(", ") : "",
+  };
+
   return (
     <DashboardLayout>
+      {/* Structured Data for Search Engines */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <div className="mb-4 sm:mb-6">
@@ -236,9 +270,22 @@ export default async function RecipeDetailPage(props: {
                   {recipe.ingredients && recipe.ingredients.length > 0 ? (
                     recipe.ingredients.map((ingredient, i) => {
                       // Handle both string and object formats
-                      const ingredientText = typeof ingredient === 'string' 
-                        ? ingredient 
-                        : `${ingredient.amount || ''} ${ingredient.unit || ''} ${ingredient.name || ''}`.trim();
+                      let ingredientText = '';
+                      
+                      if (typeof ingredient === 'string') {
+                        ingredientText = ingredient;
+                      } else {
+                        // Format amount as fraction if it's a number
+                        const amount = ingredient.amount || ingredient.qty;
+                        let formattedAmount = '';
+                        
+                        if (amount !== undefined && amount !== null && amount !== '') {
+                          // Convert decimal amounts to fractions
+                          formattedAmount = decimalToFraction(amount);
+                        }
+                        
+                        ingredientText = `${formattedAmount} ${ingredient.unit || ''} ${ingredient.name || ''}`.trim();
+                      }
                       
                       return (
                         <li key={i} className="flex items-start gap-3">
