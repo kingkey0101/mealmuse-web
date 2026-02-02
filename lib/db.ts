@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI;
+// Strip quotes if present (e.g., from .env.local)
+const uri = process.env.MONGODB_URI?.replace(/^['"]|['"]$/g, '');
 const options = {};
 
 let client: MongoClient | null = null;
@@ -8,6 +9,11 @@ let clientPromise: Promise<MongoClient>;
 
 if (!uri) {
   throw new Error("Please add MONGODB_URI to your .env.local");
+}
+
+// Validate URI format
+if (!uri.startsWith('mongodb://') && !uri.startsWith('mongodb+srv://')) {
+  throw new Error(`Invalid MongoDB URI format: ${uri.substring(0, 20)}...`);
 }
 
 if (process.env.NODE_ENV === "development") {
