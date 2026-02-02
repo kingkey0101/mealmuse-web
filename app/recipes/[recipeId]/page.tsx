@@ -15,7 +15,8 @@ import { decimalToFraction } from "@/lib/fractionConverter";
 
 interface Ingredient {
   name: string;
-  amount?: string;
+  amount?: string | number;
+  qty?: string | number;
   unit?: string;
 }
 
