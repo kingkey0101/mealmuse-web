@@ -1,8 +1,11 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, Db } from "mongodb";
 
 // Strip quotes if present (e.g., from .env.local)
 const uri = process.env.MONGODB_URI?.replace(/^['"]|['"]$/g, '');
 const options = {};
+
+// Database name - extract from URI or use default
+const dbName = process.env.MONGODB_DB_NAME || "mealmuse_prod";
 
 let client: MongoClient | null = null;
 let clientPromise: Promise<MongoClient>;
@@ -28,6 +31,12 @@ if (process.env.NODE_ENV === "development") {
 } else {
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
+}
+
+// Helper to get database instance
+export async function getDatabase(): Promise<Db> {
+  const client = await clientPromise;
+  return client.db(dbName);
 }
 
 export default clientPromise;

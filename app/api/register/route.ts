@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 import { ObjectId } from "mongodb";
 
 export async function POST(req: NextRequest) {
@@ -11,8 +11,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const users = db.collection("users");
 
     const existing = await users.findOne({ email });
