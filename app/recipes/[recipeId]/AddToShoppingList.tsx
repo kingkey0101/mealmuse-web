@@ -23,12 +23,17 @@ export function AddToShoppingList({ ingredients }: { ingredients: string[] }) {
   // Parse ingredient string to extract quantity, unit, and name
   const parseIngredient = (ingredient: string) => {
     // Match patterns like "2 cups flour", "1/2 teaspoon salt", "3-4 apples"
-    const match = ingredient.match(/^([\d\s\/.,-]+)?\s*([a-zA-Z]+)?\s*(.+)$/);
+    const match = ingredient.match(/^([\d\s\/.,-]+)?\s*([a-zA-Z]+)?\s*(.*)$/);
 
     if (match) {
       const quantityStr = match[1]?.trim() || "";
-      const unit = match[2]?.trim() || "";
-      const name = match[3]?.trim() || ingredient;
+      let unit = match[2]?.trim() || "";
+      let name = match[3]?.trim() || "";
+
+      if (!name) {
+        name = unit || ingredient;
+        unit = "";
+      }
 
       // Parse quantity (handle fractions like "1/2", ranges like "3-4", decimals)
       let quantity = 1;

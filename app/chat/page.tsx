@@ -4,12 +4,22 @@ import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card } from "@/components/ui/card";
 import { AIChefChatClient } from "@/components/ai/AIChefChat";
+import clientPromise from "@/lib/db";
 
 export default async function ChatPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session?.user?.email) {
     redirect("/auth/login");
+  }
+
+  const client = await clientPromise;
+  const db = client.db();
+  const user = await db.collection("users").findOne({ email: session.user.email });
+  const isPremium = user?.subscription?.tier === "premium" || user?.subscription?.status === "active";
+
+  if (!isPremium) {
+    redirect("/premium");
   }
 
   return (

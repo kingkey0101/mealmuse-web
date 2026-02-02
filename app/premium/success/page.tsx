@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { SuccessRedirect } from "../SuccessRedirect";
 
 export default async function SuccessPage() {
   const session = await getServerSession(authOptions);
@@ -66,18 +67,7 @@ export default async function SuccessPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-              <Link href="/chat" className="flex-1 sm:flex-none">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto font-semibold"
-                  style={{
-                    background: "linear-gradient(135deg, #E8A628 0%, #D4941F 100%)",
-                    color: "white",
-                  }}
-                >
-                  Try AI Chef Chat
-                </Button>
-              </Link>
+              <SuccessRedirect />
               <Link href="/recipes" className="flex-1 sm:flex-none">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
                   Browse Recipes

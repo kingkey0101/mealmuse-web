@@ -1,6 +1,11 @@
 import { getSession } from "next-auth/react";
 
-export const API_BASE = "https://mh3m28rfq5.execute-api.us-east-2.amazonaws.com/prod";
+const DEFAULT_API_BASE = "https://mh3m28rfq5.execute-api.us-east-2.amazonaws.com/prod";
+const CLIENT_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "/api";
+const SERVER_API_BASE =
+  process.env.API_BASE || process.env.NEXT_PUBLIC_API_BASE || DEFAULT_API_BASE;
+
+export const API_BASE = typeof window === "undefined" ? SERVER_API_BASE : CLIENT_API_BASE;
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const session = await getSession();
