@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 import { rewriteRecipe } from "@/lib/huggingface";
 
 export async function POST(request: Request) {
@@ -12,8 +12,7 @@ export async function POST(request: Request) {
     }
 
     // Check if user is premium
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const user = await db.collection("users").findOne({ email: session.user.email });
 
     if (!user || user.subscription?.tier !== "premium") {

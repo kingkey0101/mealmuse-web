@@ -6,7 +6,7 @@
 
 import "server-only";
 
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 import { PLANS } from "@/lib/stripe";
 
 export interface EarlyAdopterStatus {
@@ -21,8 +21,7 @@ export interface EarlyAdopterStatus {
  */
 export async function getEarlyAdopterStatus(): Promise<EarlyAdopterStatus> {
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     // Count early adopter subscriptions
     const earlyAdopters = await db.collection("earlyAdopters").countDocuments({ status: "active" });
@@ -52,8 +51,7 @@ export async function getEarlyAdopterStatus(): Promise<EarlyAdopterStatus> {
  */
 export async function hasUserClaimedEarlyAdopter(userId: string): Promise<boolean> {
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     const record = await db.collection("earlyAdopters").findOne({ userId });
     return !!record;
@@ -71,8 +69,7 @@ export async function claimEarlyAdopterDiscount(
   email: string
 ): Promise<{ success: boolean; message: string }> {
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     // Check if user already claimed
     const existing = await db.collection("earlyAdopters").findOne({ userId });
@@ -106,8 +103,7 @@ export async function claimEarlyAdopterDiscount(
  */
 export async function cancelEarlyAdopterDiscount(userId: string): Promise<void> {
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     await db
       .collection("earlyAdopters")

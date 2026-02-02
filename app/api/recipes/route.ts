@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -11,8 +11,7 @@ export async function GET() {
   }
 
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     // Get recipes - show:
     // 1. All approved recipes (including seeded recipes)
@@ -77,8 +76,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Dietary must be an array" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     const recipe = {
       title,
@@ -162,8 +160,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Dietary must be an array" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const { ObjectId } = await import("mongodb");
 
     // Verify ownership
@@ -219,8 +216,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const { ObjectId } = await import("mongodb");
 
     // Verify ownership

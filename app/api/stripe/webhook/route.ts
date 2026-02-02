@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 import Stripe from "stripe";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
@@ -27,8 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const client = await clientPromise;
-  const db = client.db();
+  const db = await getDatabase();
 
   try {
     switch (event.type) {

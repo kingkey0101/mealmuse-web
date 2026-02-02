@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 /**
  * Get all pending recipes for admin review
@@ -14,8 +14,7 @@ export async function GET(req: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const recipesCollection = db.collection("recipes");
 
     const recipes = await recipesCollection

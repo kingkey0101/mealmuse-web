@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 const normalizeItemName = (name: unknown) => {
   if (Array.isArray(name)) {
@@ -21,8 +21,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     const shoppingList = await db.collection("shoppingLists").findOne({ userId: session.user.id });
 
@@ -60,8 +59,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Item name is required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     const newItem = {
       id: Date.now().toString(),
@@ -109,8 +107,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Item ID is required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     await db.collection("shoppingLists").updateOne(
       { userId: session.user.id, "items.id": itemId },
@@ -141,8 +138,7 @@ export async function DELETE(req: NextRequest) {
     const itemId = searchParams.get("itemId");
     const clearChecked = searchParams.get("clearChecked") === "true";
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     if (clearChecked) {
       // Remove all checked items
