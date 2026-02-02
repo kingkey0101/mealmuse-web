@@ -4,15 +4,28 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export function AddToShoppingList({ ingredients }: { ingredients: string[] }) {
+interface Ingredient {
+  name: string;
+  amount?: string;
+  unit?: string;
+}
+
+export function AddToShoppingList({ ingredients }: { ingredients: (string | Ingredient)[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [addedCount, setAddedCount] = useState<number | null>(null);
 
   const normalizedIngredients = useMemo(() => {
+    // Convert all ingredients to strings first
+    const stringIngredients = ingredients.map(item => {
+      if (typeof item === 'string') return item;
+      // Convert object format to string
+      return `${item.amount || ''} ${item.unit || ''} ${item.name || ''}`.trim();
+    });
+
     return Array.from(
       new Set(
-        (ingredients || [])
+        stringIngredients
           .map((item) => item.trim())
           .filter((item) => item.length > 0)
           .filter((item) => !/^(tips?|notes?|servings?|cooking time|prep time)[:\s]/i.test(item))

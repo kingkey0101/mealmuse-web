@@ -12,6 +12,12 @@ import { BackButton } from "./BackButton";
 import clientPromise from "@/lib/db";
 import { ObjectId } from "mongodb";
 
+interface Ingredient {
+  name: string;
+  amount?: string;
+  unit?: string;
+}
+
 interface Recipe {
   _id: string;
   title: string;
@@ -19,7 +25,7 @@ interface Recipe {
   skill: string;
   dietary?: string[];
   cookingTime?: number;
-  ingredients: string[];
+  ingredients: string[] | Ingredient[];
   steps: string[];
   equipment: string[];
   userId?: string;
@@ -228,15 +234,22 @@ export default async function RecipeDetailPage(props: {
               <CardContent>
                 <ul className="space-y-3">
                   {recipe.ingredients && recipe.ingredients.length > 0 ? (
-                    recipe.ingredients.map((ingredient, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span
-                          className="flex h-2 w-2 shrink-0 rounded-full mt-2"
-                          style={{ backgroundColor: "#1FA244" }}
-                        />
-                        <span className="text-sm">{ingredient}</span>
-                      </li>
-                    ))
+                    recipe.ingredients.map((ingredient, i) => {
+                      // Handle both string and object formats
+                      const ingredientText = typeof ingredient === 'string' 
+                        ? ingredient 
+                        : `${ingredient.amount || ''} ${ingredient.unit || ''} ${ingredient.name || ''}`.trim();
+                      
+                      return (
+                        <li key={i} className="flex items-start gap-3">
+                          <span
+                            className="flex h-2 w-2 shrink-0 rounded-full mt-2"
+                            style={{ backgroundColor: "#1FA244" }}
+                          />
+                          <span className="text-sm">{ingredientText}</span>
+                        </li>
+                      );
+                    })
                   ) : (
                     <p className="text-sm text-muted-foreground">No ingredients listed</p>
                   )}
