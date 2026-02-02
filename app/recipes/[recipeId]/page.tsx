@@ -1,7 +1,6 @@
 //
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { api } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -10,6 +9,8 @@ import type { Metadata } from "next";
 import { RecipeActions } from "./RecipeActions";
 import { AddToShoppingList } from "./AddToShoppingList";
 import { BackButton } from "./BackButton";
+import clientPromise from "@/lib/db";
+import { ObjectId } from "mongodb";
 
 interface Recipe {
   _id: string;
@@ -22,6 +23,45 @@ interface Recipe {
   steps: string[];
   equipment: string[];
   userId?: string;
+}
+
+function mapRecipeDoc(doc: any): Recipe {
+  return {
+    _id: doc._id?.toString?.() || String(doc._id || ""),
+    title: doc.title || "",
+    cuisine: doc.cuisine || "",
+    skill: doc.skill || "",
+    dietary: Array.isArray(doc.dietary) ? doc.dietary : [],
+    cookingTime: doc.cookingTime ?? undefined,
+    ingredients: Array.isArray(doc.ingredients) ? doc.ingredients : [],
+    steps: Array.isArray(doc.steps) ? doc.steps : [],
+    equipment: Array.isArray(doc.equipment) ? doc.equipment : [],
+    userId: doc.userId,
+  };
+}
+
+async function getRecipeById(recipeId: string) {
+  const client = await clientPromise;
+  const db = client.db();
+
+  if (ObjectId.isValid(recipeId)) {
+    const byObjectId = await db
+      .collection("recipes")
+      .findOne({ _id: new ObjectId(recipeId) });
+    if (byObjectId) return mapRecipeDoc(byObjectId);
+  }
+
+  const numericId = Number(recipeId);
+  const query: any = {
+    $or: [
+      { spoonacularId: Number.isFinite(numericId) ? numericId : recipeId },
+      { spoonacularId: recipeId },
+      { _id: recipeId },
+    ],
+  };
+
+  const byQuery = await db.collection("recipes").findOne(query);
+  return byQuery ? mapRecipeDoc(byQuery) : null;
 }
 
 // Helper function to get emoji for recipe
@@ -98,7 +138,14 @@ export async function generateMetadata(props: {
   const { recipeId } = await props.params;
 
   try {
-    const recipe = await api<Recipe>(`/recipes/${recipeId}`);
+    const recipe = await getRecipeById(recipeId);
+
+    if (!recipe) {
+      return {
+        title: "Recipe | MealMuse",
+        description: "View this delicious recipe on MealMuse",
+      };
+    }
 
     return {
       title: `${recipe.title} | MealMuse`,
@@ -144,7 +191,11 @@ export default async function RecipeDetailPage(props: {
   const { recipeId } = await props.params;
   const searchParams = await props.searchParams;
   const page = searchParams.page || "1";
-  const recipe = await api<Recipe>(`/recipes/${recipeId}`);
+  const recipe = await getRecipeById(recipeId);
+
+  if (!recipe) {
+    redirect("/recipes");
+  }
 
   const isOwner = recipe.userId === session.user.id;
   const isSeeded = !recipe.userId; // Seeded recipes have no userId

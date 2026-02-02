@@ -6,7 +6,7 @@ import clientPromise from "@/lib/db";
 export async function GET() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -18,16 +18,16 @@ export async function GET() {
     // 1. All approved recipes (including seeded recipes)
     // 2. All recipes without userId (seeded from DB)
     // 3. User's own recipes (regardless of status)
-    const recipes = await db
-      .collection("recipes")
-      .find({
-        $or: [
-          { status: "approved" }, // Approved recipes visible to all
-          { userId: { $exists: false } }, // Seeded recipes (no userId)
-          { userId: session.user.id }, // Own recipes visible regardless of status
-        ],
-      })
-      .toArray();
+    const filters: any[] = [
+      { status: "approved" }, // Approved recipes visible to all
+      { userId: { $exists: false } }, // Seeded recipes (no userId)
+    ];
+
+    if (session.user.id) {
+      filters.push({ userId: session.user.id }); // Own recipes visible regardless of status
+    }
+
+    const recipes = await db.collection("recipes").find({ $or: filters }).toArray();
 
     return NextResponse.json(recipes, { status: 200 });
   } catch (error) {
