@@ -53,8 +53,7 @@ export async function POST(req: NextRequest) {
       }
 
       planType = "earlyAdopter";
-      // Use monthly price ID with special metadata
-      priceId = process.env.STRIPE_PRICE_ID_MONTHLY || "";
+      priceId = process.env.STRIPE_PRICE_ID_EARLY_ADOPTER || "";
     } else {
       const plan = getPlan(interval as PlanInterval);
       priceId = plan.priceId;
