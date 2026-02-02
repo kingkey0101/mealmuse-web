@@ -17,7 +17,7 @@
 - 📱 Mobile-responsive design
 - 🔐 Secure authentication with NextAuth.js
 
-### 🌟 Premium Tier ($4.99/month)
+### 🌟 Premium Tier ($9.99/month OR $6.99/month for the next 50 Users! OR $79/year)
 - 🤖 **AI Chef Chatbot** - Personalized cooking advice powered by Groq (llama-3.1-8b-instant)
 - ✨ **AI Recipe Generator** - Create custom recipes from your ingredients
 - 📚 **Ingredient Encyclopedia** - Learn about ingredients with AI insights
@@ -329,19 +329,16 @@ Contributions are welcome! Please:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 💬 Support
 
-- 📧 Email: support@mealmuse.com
-- 💬 Discord: [Join our community](https://discord.gg/mealmuse)
+- 📧 Email: kingkey0101@outloo.com
+- 💬 Discord: [Coming soon]
 - 🐛 Issues: [Report bugs on GitHub](https://github.com/kingkey0101/mealmuse-web/issues)
 
 ## 👨‍💻 Author
 
-**King Key** - [GitHub](https://github.com/kingkey0101) | [Twitter](https://twitter.com/kingkey)
+**Keylan King** - [GitHub](https://github.com/kingkey0101) | [LinkedIn](www.linkedin.com/in/keylan-king-12116835a)
 
 ## 🙏 Acknowledgments
 
@@ -355,4 +352,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-Made with ❤️ by King Key. Empowering home cooks everywhere. 🍽️
+Made with ❤️ by Keylan King. Empowering home cooks everywhere. 🍽️
