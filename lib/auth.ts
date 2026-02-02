@@ -34,22 +34,33 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null;
 
-        const client = await clientPromise;
-        const db = client.db();
-        const user = await db.collection("users").findOne({
-          email: credentials.email,
-        });
+        try {
+          const client = await clientPromise;
+          const db = client.db();
+          const user = await db.collection("users").findOne({
+            email: credentials.email,
+          });
 
-        if (!user) return null;
+          if (!user) {
+            console.log(`Login failed: User not found for email ${credentials.email}`);
+            return null;
+          }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+          const isValid = await bcrypt.compare(credentials.password, user.password);
 
-        if (!isValid) return null;
+          if (!isValid) {
+            console.log(`Login failed: Invalid password for email ${credentials.email}`);
+            return null;
+          }
 
-        return {
-          id: user._id.toString(),
-          email: user.email,
-        };
+          return {
+            id: user._id.toString(),
+            email: user.email,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
       },
     }),
   ],
