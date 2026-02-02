@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import clientPromise from "@/lib/db";
+import { ObjectId } from "mongodb";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,13 +23,23 @@ export async function POST(req: NextRequest) {
 
     const hashed = await bcrypt.hash(password, 10);
 
-    await users.insertOne({
+    // Generate unique userId using MongoDB ObjectId
+    const userId = new ObjectId();
+
+    const result = await users.insertOne({
+      _id: userId,
       email,
       password: hashed,
       createdAt: new Date(),
+      subscription: {
+        tier: "free",
+        status: "active",
+      },
+      favorites: [],
     });
-    console.log("✅ User registered:", email);
-    return NextResponse.json({ ok: true }, { status: 201 });
+
+    console.log("✅ User registered:", email, "userId:", userId.toString());
+    return NextResponse.json({ ok: true, userId: result.insertedId.toString() }, { status: 201 });
   } catch (error) {
     console.error("❌ Registration error:", error);
     return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
