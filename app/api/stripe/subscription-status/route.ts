@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 /**
  * Get Current Subscription Status
@@ -15,8 +15,7 @@ export async function GET() {
   }
 
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const user = await db.collection("users").findOne({
       email: session.user.email,
     });

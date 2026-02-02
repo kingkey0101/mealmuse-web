@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 import { ObjectId } from "mongodb";
 
 /**
@@ -21,8 +21,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Invalid request" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const recipesCollection = db.collection("recipes");
     const usersCollection = db.collection("users");
 

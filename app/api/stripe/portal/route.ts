@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 /**
  * Create Stripe Billing Portal Session
@@ -17,8 +17,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Get user's Stripe customer ID
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const user = await db.collection("users").findOne({
       email: session.user.email,
     });

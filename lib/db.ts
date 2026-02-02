@@ -4,8 +4,22 @@ import { MongoClient, Db } from "mongodb";
 const uri = process.env.MONGODB_URI?.replace(/^['"]|['"]$/g, '');
 const options = {};
 
-// Database name - extract from URI or use default
-const dbName = process.env.MONGODB_DB_NAME || "mealmuse_prod";
+// Extract database name from URI or use environment variable or default
+function extractDbNameFromUri(uri: string): string {
+  try {
+    // Try to extract database name from MongoDB URI
+    // Format: mongodb+srv://user:pass@host/DATABASE_NAME?options
+    const match = uri.match(/\/([^/?]+)(\?|$)/);
+    if (match && match[1]) {
+      return match[1];
+    }
+  } catch (error) {
+    console.warn("Could not extract database name from URI");
+  }
+  return "mealmuse_prod"; // fallback
+}
+
+const dbName = process.env.MONGODB_DB_NAME || (uri ? extractDbNameFromUri(uri) : "mealmuse_prod");
 
 let client: MongoClient | null = null;
 let clientPromise: Promise<MongoClient>;

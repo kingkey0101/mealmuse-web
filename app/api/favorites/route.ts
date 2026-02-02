@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 import { ObjectId } from "mongodb";
 
 export async function GET() {
@@ -12,8 +12,7 @@ export async function GET() {
   }
 
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const user = await db.collection("users").findOne({
       _id: new ObjectId(session.user.id),
     });
@@ -40,8 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     await db
       .collection("users")
@@ -69,8 +67,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Recipe ID is required" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     await db
       .collection("users")

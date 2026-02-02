@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -10,8 +10,7 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const usersCollection = db.collection("users");
     const user = await usersCollection.findOne({ email: session.user.email });
 
@@ -48,8 +47,7 @@ export async function PUT(req: Request) {
       return Response.json({ error: "Invalid phone number" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const usersCollection = db.collection("users");
 
     const result = await usersCollection.updateOne(

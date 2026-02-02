@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -11,8 +11,7 @@ export async function GET() {
   }
 
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
 
     // Fetch only recipes created by this user
     const recipes = await db

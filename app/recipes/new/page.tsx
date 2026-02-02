@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import RecipeForm from "./RecipeForm";
 import { RecipeGenerator } from "@/components/ai/RecipeGenerator";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 export default async function NewRecipePage() {
   const session = await getServerSession(authOptions);
@@ -14,8 +14,7 @@ export default async function NewRecipePage() {
   }
 
   // Check if user is premium
-  const client = await clientPromise;
-  const db = client.db();
+  const db = await getDatabase();
   const user = await db.collection("users").findOne({ email: session.user.email });
   const isPremium = user?.subscription?.tier === "premium";
 

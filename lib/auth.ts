@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import clientPromise from "./db";
+import { getDatabase } from "./db";
 import jwt from "jsonwebtoken";
 
 if (!process.env.NEXTAUTH_SECRET) {
@@ -35,8 +35,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials.password) return null;
 
         try {
-          const client = await clientPromise;
-          const db = client.db();
+          const db = await getDatabase();
           const user = await db.collection("users").findOne({
             email: credentials.email,
           });

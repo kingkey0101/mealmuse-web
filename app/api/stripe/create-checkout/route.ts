@@ -7,7 +7,7 @@ import {
   hasUserClaimedEarlyAdopter,
   claimEarlyAdopterDiscount,
 } from "@/lib/early-adopter";
-import clientPromise from "@/lib/db";
+import { getDatabase } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -67,8 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get user from database to check for existing customer ID
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDatabase();
     const user = await db.collection("users").findOne({
       email: session.user.email,
     });
