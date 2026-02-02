@@ -25,6 +25,21 @@ interface Recipe {
   userId?: string;
 }
 
+function mapRecipeDoc(doc: any): Recipe {
+  return {
+    _id: doc._id?.toString?.() || String(doc._id || ""),
+    title: doc.title || "",
+    cuisine: doc.cuisine || "",
+    skill: doc.skill || "",
+    dietary: Array.isArray(doc.dietary) ? doc.dietary : [],
+    cookingTime: doc.cookingTime ?? undefined,
+    ingredients: Array.isArray(doc.ingredients) ? doc.ingredients : [],
+    steps: Array.isArray(doc.steps) ? doc.steps : [],
+    equipment: Array.isArray(doc.equipment) ? doc.equipment : [],
+    userId: doc.userId,
+  };
+}
+
 async function getRecipeById(recipeId: string) {
   const client = await clientPromise;
   const db = client.db();
@@ -33,7 +48,7 @@ async function getRecipeById(recipeId: string) {
     const byObjectId = await db
       .collection("recipes")
       .findOne({ _id: new ObjectId(recipeId) });
-    if (byObjectId) return byObjectId as Recipe;
+    if (byObjectId) return mapRecipeDoc(byObjectId);
   }
 
   const numericId = Number(recipeId);
@@ -45,7 +60,8 @@ async function getRecipeById(recipeId: string) {
     ],
   };
 
-  return (await db.collection("recipes").findOne(query)) as Recipe | null;
+  const byQuery = await db.collection("recipes").findOne(query);
+  return byQuery ? mapRecipeDoc(byQuery) : null;
 }
 
 // Helper function to get emoji for recipe
