@@ -369,9 +369,176 @@ if (!hasMatch) {
 - [ ] Add breadcrumb schema for navigation
 - [ ] Create recipe cards with more metadata (servings, calories, etc.)
 - [ ] Add image optimization for social sharing
-- [ ] Integrate email service for password reset links
+- [x] ~~Integrate email service for password reset links~~ (Completed with Resend)
 - [ ] Add 2FA/MFA authentication
 - [ ] Add social login (Google, Facebook)
+- [ ] Send welcome emails to new users
+- [ ] Add email notifications for recipe activity
+
+---
+
+## 8. Email Integration
+
+### Overview
+MealMuse now uses [Resend](https://resend.com) for sending transactional emails, starting with password reset functionality.
+
+### Setup
+
+1. **Install Resend**:
+   ```bash
+   npm install resend
+   ```
+
+2. **Environment Variables**:
+   ```bash
+   # Resend API Key (get from https://resend.com/api-keys)
+   RESEND_API_KEY=re_your_api_key_here
+   
+   # Email sender address (must be verified in Resend)
+   EMAIL_FROM=MealMuse <noreply@mymealmuse.com>
+   ```
+
+3. **Domain Verification** (Production):
+   - Add your domain in Resend dashboard
+   - Configure DNS records (SPF, DKIM, DMARC)
+   - Wait for verification
+   - For development/testing, use: `onboarding@resend.dev`
+
+### Email Service (`lib/email.ts`)
+
+**Features**:
+- Professional HTML email templates
+- Responsive design
+- MealMuse branding
+- Development mode (console logging)
+- Production mode (real emails via Resend)
+
+**Available Functions**:
+
+1. **`sendPasswordResetEmail(email, resetLink)`**
+   - Sends password reset email with secure link
+   - 1-hour expiration warning
+   - Professional template with button and fallback link
+
+2. **`sendWelcomeEmail(email, name)`**
+   - Welcome message for new users
+   - Overview of key features
+   - Call-to-action to start cooking
+
+3. **`sendEmail({ to, subject, html })`**
+   - Generic email sending function
+   - Can be extended for any email type
+
+### Password Reset Flow
+
+1. **User requests reset** (`/auth/forgot-password`):
+   - Enters email address
+   - Submits form
+
+2. **Server generates token** (`/api/auth/forgot-password`):
+   ```typescript
+   const resetToken = crypto.randomBytes(32).toString("hex");
+   const resetTokenExpiry = Date.now() + 3600000; // 1 hour
+   ```
+
+3. **Token stored in database**:
+   ```typescript
+   await db.collection("users").updateOne(
+     { email },
+     { $set: { resetToken, resetTokenExpiry } }
+   );
+   ```
+
+4. **Email sent to user**:
+   ```typescript
+   const resetLink = `${baseUrl}/auth/reset-password?token=${resetToken}`;
+   await sendPasswordResetEmail(email, resetLink);
+   ```
+
+5. **User clicks link** (`/auth/reset-password?token=...`):
+   - Enters new password
+   - Confirms password
+
+6. **Server validates and resets** (`/api/auth/reset-password`):
+   ```typescript
+   // Validate token not expired
+   const user = await db.collection("users").findOne({
+     resetToken,
+     resetTokenExpiry: { $gt: Date.now() }
+   });
+   
+   // Hash new password
+   const hashedPassword = await bcrypt.hash(password, 10);
+   
+   // Update and clear token
+   await db.collection("users").updateOne(
+     { resetToken },
+     { 
+       $set: { password: hashedPassword },
+       $unset: { resetToken: "", resetTokenExpiry: "" }
+     }
+   );
+   ```
+
+### Security Features
+
+- **Secure Token Generation**: 32 bytes (256 bits) using `crypto.randomBytes()`
+- **Token Expiration**: 1 hour validity period
+- **Email Enumeration Prevention**: Same response whether user exists or not
+- **Password Hashing**: bcrypt with 10 salt rounds
+- **HTTPS Required**: All reset links use HTTPS in production
+
+### Email Template Features
+
+- MealMuse logo and branding (#7A8854 green)
+- Responsive design (mobile-friendly)
+- Clear call-to-action button
+- Fallback text link for accessibility
+- Security warnings (expiration time)
+- Professional footer
+- Handles dark mode
+
+### Testing
+
+**Development** (without API key):
+```bash
+# Emails logged to console
+npm run dev
+# Check terminal for email content
+```
+
+**Production** (with API key):
+```bash
+# Real emails sent via Resend
+# Set RESEND_API_KEY in environment
+# Request reset and check email inbox
+```
+
+### Monitoring
+
+- **Resend Dashboard**: View all sent emails, delivery status
+- **Application Logs**: Check for success/failure messages
+- **Free Tier**: 3,000 emails/month, 100/day
+
+### Files Created/Modified
+
+**New Files**:
+- `lib/email.ts` - Email service with templates
+- `EMAIL_SETUP_GUIDE.md` - Comprehensive setup documentation
+
+**Modified Files**:
+- `app/api/auth/forgot-password/route.ts` - Now sends emails
+- `app/auth/forgot-password/page.tsx` - Updated UI (no more link display)
+- `.env.example` - Added email configuration variables
+
+### Documentation
+
+See **[EMAIL_SETUP_GUIDE.md](./EMAIL_SETUP_GUIDE.md)** for:
+- Complete setup instructions
+- Domain verification steps
+- Troubleshooting guide
+- Security best practices
+- Production checklist
 
 ---
 
@@ -383,3 +550,5 @@ For issues or questions:
 2. Review recipe page code in `app/recipes/[recipeId]/page.tsx`
 3. Check API endpoint in `app/api/admin/seed-recipes/route.ts`
 4. Review password reset in `app/api/auth/forgot-password/route.ts` and `app/api/auth/reset-password/route.ts`
+5. Email functionality in `lib/email.ts`
+6. Email setup guide in `EMAIL_SETUP_GUIDE.md`

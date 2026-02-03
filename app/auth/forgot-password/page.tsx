@@ -12,7 +12,6 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [resetLink, setResetLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -36,7 +35,6 @@ export default function ForgotPasswordPage() {
       }
 
       setSuccess(true);
-      setResetLink(data.resetLink);
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
@@ -77,7 +75,7 @@ export default function ForgotPasswordPage() {
             <CardTitle className="text-xl sm:text-2xl font-semibold">Forgot Password</CardTitle>
             <CardDescription className="text-sm sm:text-base">
               {success
-                ? "Check your email for the reset link"
+                ? "Password reset link sent!"
                 : "Enter your email to receive a password reset link"}
             </CardDescription>
           </CardHeader>
@@ -89,30 +87,27 @@ export default function ForgotPasswordPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="rounded-lg bg-green-500/10 border border-green-500/50 p-4"
                 >
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400 text-center mb-4">
-                    Password reset link sent successfully!
-                  </p>
-                  <div className="bg-background rounded p-3 border border-border">
-                    <p className="text-xs text-muted-foreground mb-2">
-                      For testing purposes, here&apos;s your reset link:
+                  <div className="text-center space-y-3">
+                    <div className="text-5xl">📧</div>
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                      Check your email!
                     </p>
-                    <a
-                      href={resetLink}
-                      className="text-xs break-all hover:underline"
-                      style={{ color: "#7A8854" }}
-                    >
-                      {resetLink}
-                    </a>
+                    <p className="text-xs text-muted-foreground">
+                      We&apos;ve sent a password reset link to <strong>{email}</strong>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      The link will expire in 1 hour for security reasons.
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-4 text-center">
-                    In production, this will be sent to your email.
-                  </p>
                 </motion.div>
 
-                <div className="text-center">
+                <div className="text-center space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    Didn&apos;t receive the email? Check your spam folder.
+                  </p>
                   <Link
                     href="/auth/login"
-                    className="text-sm font-semibold transition-colors hover:underline"
+                    className="text-sm font-semibold transition-colors hover:underline block"
                     style={{ color: "#7A8854" }}
                   >
                     ← Back to login

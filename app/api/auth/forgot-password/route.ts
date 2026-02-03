@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/db";
 import crypto from "crypto";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,8 +20,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
       // For security, don't reveal if the email exists or not
       return NextResponse.json({
-        message: "If an account exists, a reset link has been sent",
-        resetLink: "", // Don't send link if user doesn't exist
+        message: "If an account exists, a reset link has been sent to your email",
       });
     }
 
@@ -39,17 +39,20 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // In production, you would send an email here
-    // For now, we'll return the reset link for testing
+    // Send email with reset link
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
     const resetLink = `${baseUrl}/auth/reset-password?token=${resetToken}`;
 
-    // TODO: Send email with reset link
-    // await sendResetEmail(email, resetLink);
+    // Send the email
+    const emailSent = await sendPasswordResetEmail(email, resetLink);
+
+    if (!emailSent) {
+      console.error("Failed to send password reset email to:", email);
+      // Still return success to prevent email enumeration
+    }
 
     return NextResponse.json({
-      message: "Password reset link sent",
-      resetLink, // Remove this in production
+      message: "If an account exists, a reset link has been sent to your email",
     });
   } catch (error) {
     console.error("Forgot password error:", error);
