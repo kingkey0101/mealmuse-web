@@ -55,6 +55,7 @@ curl -X POST https://mymealmuse.com/api/admin/seed-recipes \
 ### Step 5: Verify
 
 Visit https://mymealmuse.com/recipes and you should see:
+
 - ✅ 15 seeded recipes with proper amounts
 - ✅ Ingredient amounts showing as fractions
 - ✅ All your original recipes still there
@@ -84,14 +85,17 @@ Visit https://mymealmuse.com/recipes and you should see:
 ## 🔧 Troubleshooting
 
 **"Unauthorized" error?**
+
 - Make sure you added `ADMIN_API_KEY` to Vercel environment variables
 - Redeploy after adding the variable
 
 **"Connection refused"?**
+
 - Make sure your deployment is complete and live
 - Check that the URL is correct (https://mymealmuse.com)
 
 **No recipes showing?**
+
 - Check the response - it should show `insertedCount: 15`
 - Refresh the recipes page
 - Check browser console for errors

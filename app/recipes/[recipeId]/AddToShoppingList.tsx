@@ -19,17 +19,17 @@ export function AddToShoppingList({ ingredients }: { ingredients: (string | Ingr
 
   const normalizedIngredients = useMemo(() => {
     // Convert all ingredients to strings first, converting decimals to fractions
-    const stringIngredients = ingredients.map(item => {
-      if (typeof item === 'string') return item;
+    const stringIngredients = ingredients.map((item) => {
+      if (typeof item === "string") return item;
       // Convert object format to string with fraction amounts
       const amount = item.amount || item.qty;
-      let formattedAmount = '';
-      
-      if (amount !== undefined && amount !== null && amount !== '') {
+      let formattedAmount = "";
+
+      if (amount !== undefined && amount !== null && amount !== "") {
         formattedAmount = decimalToFraction(amount);
       }
-      
-      return `${formattedAmount} ${item.unit || ''} ${item.name || ''}`.trim();
+
+      return `${formattedAmount} ${item.unit || ""} ${item.name || ""}`.trim();
     });
 
     return Array.from(

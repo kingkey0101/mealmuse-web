@@ -12,6 +12,7 @@ This document outlines the recent enhancements made to MealMuse for analytics, S
    - Get your Measurement ID (format: `G-XXXXXXXXXX`)
 
 2. **Add to Environment Variables**:
+
    ```bash
    NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G_your_ga4_id
    ```
@@ -26,8 +27,8 @@ This document outlines the recent enhancements made to MealMuse for analytics, S
 - Page views are tracked automatically
 - Custom events can be added using:
   ```javascript
-  gtag('event', 'event_name', {
-    'property_name': 'value'
+  gtag("event", "event_name", {
+    property_name: "value",
   });
   ```
 
@@ -46,6 +47,7 @@ Recipe pages now include JSON-LD structured data for better search engine optimi
 - **Recipe Category**: Cuisine type is included
 
 This helps search engines understand:
+
 - What the recipe is about
 - What ingredients are needed
 - How long it takes to cook
@@ -54,6 +56,7 @@ This helps search engines understand:
 ### Meta Tags
 
 All recipe pages include:
+
 - **OpenGraph Tags**: For social media sharing (Facebook, LinkedIn, etc.)
 - **Twitter Card Tags**: For Twitter/X sharing
 - **Description**: Concise description of the recipe
@@ -77,6 +80,7 @@ Ingredient amounts are now automatically converted from decimals to common cooki
 ### Supported Fractions
 
 The converter supports common cooking measurements:
+
 - 1/16, 1/8, 3/16, 1/4, 5/16, 1/3, 3/8, 7/16, 1/2
 - 9/16, 7/12, 5/8, 2/3, 11/16, 3/4, 13/16, 5/6, 7/8, 15/16
 
@@ -88,22 +92,22 @@ The conversion utility is located in: `lib/fractionConverter.ts`
 
 ```typescript
 // Convert a single decimal to fraction string
-decimalToFraction(0.33333) // Returns "1/3"
+decimalToFraction(0.33333); // Returns "1/3"
 
 // Format ingredient amount with unit
-formatIngredientAmount(0.5, "cup") 
+formatIngredientAmount(0.5, "cup");
 // Returns { amount: "1/2", unit: "cup" }
 
 // Format a complete ingredient object
-formatIngredient({ 
-  name: "cilantro", 
-  amount: 0.33333, 
-  unit: "cup" 
-})
+formatIngredient({
+  name: "cilantro",
+  amount: 0.33333,
+  unit: "cup",
+});
 // Returns { name: "cilantro", amount: "1/3", unit: "cup", display: "1/3 cup cilantro" }
 
 // Batch format multiple ingredients
-formatIngredients(ingredientArray)
+formatIngredients(ingredientArray);
 // Returns array of formatted ingredients
 ```
 
@@ -125,6 +129,7 @@ formatIngredients(ingredientArray)
 ### Overview
 
 The first 15 recipes in the database are now seeded with:
+
 - Complete ingredient lists with amounts
 - Proper measurements (cups, tablespoons, teaspoons, etc.)
 - Step-by-step instructions
@@ -161,6 +166,7 @@ curl -X POST http://localhost:3000/api/admin/seed-recipes \
 ```
 
 This will:
+
 1. Delete any existing seeded recipes
 2. Insert all 15+ seed recipes with proper amounts
 
@@ -205,21 +211,25 @@ ADMIN_API_KEY=your_admin_api_key
 ## Testing
 
 ### Analytics
+
 1. Visit a recipe page
 2. Check Google Analytics Real-Time view
 3. Verify page view is recorded
 
 ### SEO
+
 1. Visit a recipe page
 2. Right-click → View Page Source
 3. Look for `<script type="application/ld+json">` with recipe data
 
 ### Decimal to Fraction
+
 1. Seed the recipes: `POST /api/admin/seed-recipes`
 2. View a recipe page
 3. Verify ingredient amounts show as fractions (e.g., "1/3 cup cilantro")
 
 ### Seeded Recipes
+
 1. Call seed endpoint
 2. Navigate to `/recipes`
 3. See 15 approved recipes with all amounts
@@ -240,6 +250,7 @@ ADMIN_API_KEY=your_admin_api_key
 ## Support
 
 For issues or questions:
+
 1. Check the implementation in `lib/fractionConverter.ts`
 2. Review recipe page code in `app/recipes/[recipeId]/page.tsx`
 3. Check API endpoint in `app/api/admin/seed-recipes/route.ts`

@@ -53,9 +53,7 @@ async function getRecipeById(recipeId: string) {
   const db = client.db();
 
   if (ObjectId.isValid(recipeId)) {
-    const byObjectId = await db
-      .collection("recipes")
-      .findOne({ _id: new ObjectId(recipeId) });
+    const byObjectId = await db.collection("recipes").findOne({ _id: new ObjectId(recipeId) });
     if (byObjectId) return mapRecipeDoc(byObjectId);
   }
 
@@ -271,23 +269,24 @@ export default async function RecipeDetailPage(props: {
                   {recipe.ingredients && recipe.ingredients.length > 0 ? (
                     recipe.ingredients.map((ingredient, i) => {
                       // Handle both string and object formats
-                      let ingredientText = '';
-                      
-                      if (typeof ingredient === 'string') {
+                      let ingredientText = "";
+
+                      if (typeof ingredient === "string") {
                         ingredientText = ingredient;
                       } else {
                         // Format amount as fraction if it's a number
                         const amount = ingredient.amount || ingredient.qty;
-                        let formattedAmount = '';
-                        
-                        if (amount !== undefined && amount !== null && amount !== '') {
+                        let formattedAmount = "";
+
+                        if (amount !== undefined && amount !== null && amount !== "") {
                           // Convert decimal amounts to fractions
                           formattedAmount = decimalToFraction(amount);
                         }
-                        
-                        ingredientText = `${formattedAmount} ${ingredient.unit || ''} ${ingredient.name || ''}`.trim();
+
+                        ingredientText =
+                          `${formattedAmount} ${ingredient.unit || ""} ${ingredient.name || ""}`.trim();
                       }
-                      
+
                       return (
                         <li key={i} className="flex items-start gap-3">
                           <span
@@ -483,10 +482,11 @@ export default async function RecipeDetailPage(props: {
                   {recipe.ingredients && recipe.ingredients.length > 0 ? (
                     recipe.ingredients.map((ingredient, i) => {
                       // Handle both string and object formats
-                      const ingredientText = typeof ingredient === 'string' 
-                        ? ingredient 
-                        : `${ingredient.amount || ''} ${ingredient.unit || ''} ${ingredient.name || ''}`.trim();
-                      
+                      const ingredientText =
+                        typeof ingredient === "string"
+                          ? ingredient
+                          : `${ingredient.amount || ""} ${ingredient.unit || ""} ${ingredient.name || ""}`.trim();
+
                       return (
                         <li key={i} className="flex items-start gap-3">
                           <span

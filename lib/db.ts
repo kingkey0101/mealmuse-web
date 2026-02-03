@@ -1,7 +1,7 @@
 import { MongoClient, Db } from "mongodb";
 
 // Strip quotes if present (e.g., from .env.local)
-const uri = process.env.MONGODB_URI?.replace(/^['"]|['"]$/g, '');
+const uri = process.env.MONGODB_URI?.replace(/^['"]|['"]$/g, "");
 const options = {};
 
 // Extract database name from URI or use environment variable or default
@@ -29,7 +29,7 @@ if (!uri) {
 }
 
 // Validate URI format
-if (!uri.startsWith('mongodb://') && !uri.startsWith('mongodb+srv://')) {
+if (!uri.startsWith("mongodb://") && !uri.startsWith("mongodb+srv://")) {
   throw new Error(`Invalid MongoDB URI format: ${uri.substring(0, 20)}...`);
 }
 

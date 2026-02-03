@@ -11,6 +11,7 @@
 ## ✨ Features
 
 ### 🆓 Free Tier
+
 - 🔍 Browse recipes from Spoonacular API plus pre-seeded recipes
 - ❤️ Save favorite recipes (unlimited)
 - 🛒 Smart shopping list with ingredient management
@@ -18,6 +19,7 @@
 - 🔐 Secure authentication with NextAuth.js
 
 ### 🌟 Premium Tier ($9.99/month OR $6.99/month for the next 50 Users! OR $79/year)
+
 - 🤖 **AI Chef Chatbot** - Personalized cooking advice powered by Groq (llama-3.1-8b-instant)
 - ✨ **AI Recipe Generator** - Create custom recipes from your ingredients
 - 📚 **Ingredient Encyclopedia** - Learn about ingredients with AI insights
@@ -27,6 +29,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ or Bun
 - npm or pnpm
 - MongoDB Atlas account
@@ -117,6 +120,7 @@ mealmuse-web/
 ## 🔐 Authentication
 
 MealMuse uses **NextAuth.js** with JWT strategy:
+
 - Email/password authentication
 - Secure session management
 - OAuth-ready architecture
@@ -129,6 +133,7 @@ MealMuse uses **NextAuth.js** with JWT strategy:
 ## 💳 Payment Integration
 
 Built with **Stripe Live API**:
+
 - Secure checkout flow
 - Automatic webhook processing
 - Subscription management at `/account/subscription`
@@ -148,6 +153,7 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 ## 🤖 AI Features
 
 Powered by **Groq AI** (llama-3.1-8b-instant):
+
 - Real-time AI Chat for cooking advice
 - Recipe generation from ingredients
 - Ingredient insights & nutrition info
@@ -174,6 +180,7 @@ Premium users get unlimited AI interactions.
 ## 📊 Database Schema
 
 **Users Collection:**
+
 ```json
 {
   "_id": ObjectId,
@@ -194,6 +201,7 @@ Premium users get unlimited AI interactions.
 ```
 
 **Recipes Collection:**
+
 ```json
 {
   "_id": ObjectId,
@@ -210,31 +218,37 @@ Premium users get unlimited AI interactions.
 ## 🔗 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/[...nextauth]` - NextAuth endpoints
 
 ### Recipes
+
 - `GET /api/recipes` - List recipes (with pagination)
 - `POST /api/recipes` - Create recipe (admin)
 - `PUT /api/recipes/[id]` - Update recipe (admin)
 
 ### Favorites
+
 - `GET /api/favorites` - Get user's favorites
 - `POST /api/favorites` - Add to favorites
 - `DELETE /api/favorites/[id]` - Remove from favorites
 
 ### Shopping List
+
 - `GET /api/shopping-list` - Get user's list
 - `POST /api/shopping-list` - Add item
 - `PUT /api/shopping-list/[id]` - Update item
 - `DELETE /api/shopping-list/[id]` - Delete item
 
 ### Stripe
+
 - `POST /api/stripe/create-checkout` - Start checkout
 - `POST /api/stripe/webhook` - Handle Stripe events
 - `GET /api/stripe/subscription-status` - Check subscription
 - `POST /api/stripe/portal` - Open billing portal
 
 ### AI Features
+
 - `POST /api/ai/chat` - Chat with AI Chef
 - `POST /api/ai/generate-recipe` - Generate recipe from ingredients
 - `POST /api/ai/ingredients` - Get ingredient info
@@ -328,7 +342,6 @@ Contributions are welcome! Please:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
 
 ## 💬 Support
 
