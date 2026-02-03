@@ -155,11 +155,14 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
       return false;
     }
 
-    // Dietary filter - must have matching dietary preference
+    // Dietary filter - must have matching dietary preference (case-insensitive)
     if (dietaryFilter !== "All") {
       const dietary = recipe.dietary || recipe.dietaryPreferences || [];
-      // Recipe must have the specific dietary preference in its array
-      if (!dietary.includes(dietaryFilter)) {
+      // Recipe must have the specific dietary preference in its array (case-insensitive)
+      const hasMatch = dietary.some(
+        (pref: string) => pref.toLowerCase() === dietaryFilter.toLowerCase()
+      );
+      if (!hasMatch) {
         return false;
       }
     }
@@ -195,7 +198,7 @@ export default function RecipesClient({ initialPage = 1 }: { initialPage?: numbe
   const maxPageButtons = 5;
   const halfWindow = Math.floor(maxPageButtons / 2);
   let paginationStart = Math.max(1, currentPage - halfWindow);
-  let paginationEnd = Math.min(totalPages, paginationStart + maxPageButtons - 1);
+  const paginationEnd = Math.min(totalPages, paginationStart + maxPageButtons - 1);
   paginationStart = Math.max(1, paginationEnd - maxPageButtons + 1);
 
   const updatePage = useCallback(

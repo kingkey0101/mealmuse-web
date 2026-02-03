@@ -160,7 +160,9 @@ export function formatIngredient(ingredient: any): {
 
   const formatted = formatIngredientAmount(amount, unit);
 
-  const display = unit ? `${formatted.amount} ${formatted.unit} ${name}` : `${formatted.amount} ${name}`;
+  const display = unit
+    ? `${formatted.amount} ${formatted.unit} ${name}`
+    : `${formatted.amount} ${name}`;
 
   return {
     name,

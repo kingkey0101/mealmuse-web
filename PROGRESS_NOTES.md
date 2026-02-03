@@ -13,15 +13,18 @@
 #### 1. ✅ Fixed Shopping List Ingredient Parsing Bug
 
 **Problem:** Single-word ingredients were being truncated
+
 - Example: "pasta" appeared as "a" in shopping list
 - Root cause: Regex capturing group with `(.+)$` consumed the last character
 
 **Solution:**
+
 - Fixed regex in `AddToShoppingList.tsx` from `(.+)$` to `(.*)$` to prevent last char truncation
 - Improved fallback logic: if parsed name is empty, use unit as name and clear unit
 - Result: All ingredients now display with full names
 
 **Files Updated:**
+
 - `app/recipes/[recipeId]/AddToShoppingList.tsx` - Fixed regex and parsing logic
 
 **Impact:** Shopping list now displays complete ingredient names correctly
@@ -33,12 +36,14 @@
 **Problem:** Favorites page returned "Failed to load recipes" due to CORS errors when calling external API
 
 **Solution:**
+
 - Implemented dual-base API strategy in `lib/api.ts`
 - Client-side calls use `/api/recipes` (local Next.js API routes)
 - Server-side calls use AWS Lambda base URL (for backend operations)
 - Detection: `typeof window === "undefined"` to distinguish context
 
 **Files Updated:**
+
 - `lib/api.ts` - Added dual-base URL logic
 
 **Impact:** Favorites page now loads successfully, all API calls work properly
@@ -50,11 +55,13 @@
 **Problem:** Free tier users could access AI Chef feature without limitation
 
 **Solution:**
+
 - Added server-side `isPremium` check in `app/chat/page.tsx`
 - Free users redirected to `/premium` pricing page when accessing chat
 - Premium features properly gated behind subscription
 
 **Files Updated:**
+
 - `app/chat/page.tsx` - Added server-side premium validation
 
 **Impact:** Freemium model now enforced, premium features protected
@@ -66,11 +73,13 @@
 **Problem:** Malformed ingredient data could cause partial display issues
 
 **Solution:**
+
 - Added `normalizeItemName()` function in `app/api/shopping-list/route.ts`
 - Converts arrays/invalid strings to proper trimmed strings
 - Prevents corruption of ingredient names during storage
 
 **Files Updated:**
+
 - `app/api/shopping-list/route.ts` - Added item name normalization
 
 **Impact:** Shopping list data integrity maintained
@@ -82,11 +91,13 @@
 **Problem:** Pagination showed all 17 page numbers, overwhelming users
 
 **Solution:**
+
 - Implemented 5-page sliding window in `app/recipes/RecipesClient.tsx`
 - Shows max 5 page numbers at a time, slides as user navigates
 - Calculated dynamically: `paginationStart = Math.max(1, currentPage - 2)`
 
 **Files Updated:**
+
 - `app/recipes/RecipesClient.tsx` - Added pagination window logic
 
 **Impact:** UI cleaner, better UX for recipe browsing
