@@ -1,6 +1,6 @@
-# Analytics, SEO, and Ingredient Improvements
+# Analytics, SEO, Ingredient Improvements, and Password Reset
 
-This document outlines the recent enhancements made to MealMuse for analytics, SEO, and ingredient display.
+This document outlines the recent enhancements made to MealMuse for analytics, SEO, ingredient display, and authentication.
 
 ## 1. Google Analytics Integration
 
@@ -236,6 +236,131 @@ ADMIN_API_KEY=your_admin_api_key
 
 ---
 
+## 5. Password Reset Feature
+
+### Overview
+
+Complete password reset functionality has been added to improve user experience and security.
+
+### Pages Added
+
+1. **Forgot Password** (`/auth/forgot-password`):
+   - Users can request a password reset link
+   - Enter email address
+   - Receive reset token (displayed for testing, will be emailed in production)
+
+2. **Reset Password** (`/auth/reset-password`):
+   - Users can set a new password using the reset token
+   - Token validation
+   - Password confirmation
+   - Auto-redirect to login after success
+
+3. **Updated Login Page**:
+   - Added "Forgot password?" link below password field
+
+### API Endpoints
+
+1. **POST `/api/auth/forgot-password`**:
+   - Accepts: `{ email: string }`
+   - Generates a secure reset token
+   - Stores token with 1-hour expiry in database
+   - Returns reset link (for testing; send via email in production)
+
+2. **POST `/api/auth/reset-password`**:
+   - Accepts: `{ token: string, password: string }`
+   - Validates token and expiry
+   - Hashes new password with bcrypt
+   - Updates user password
+   - Clears reset token from database
+
+### Security Features
+
+- ✅ Reset tokens expire after 1 hour
+- ✅ Tokens are cryptographically secure (32 bytes)
+- ✅ Passwords hashed with bcrypt (10 rounds)
+- ✅ Tokens stored securely in MongoDB
+- ✅ Tokens are single-use (cleared after reset)
+- ✅ Doesn't reveal if email exists (prevents user enumeration)
+- ✅ Password must be at least 6 characters
+
+### Database Schema Updates
+
+Added to users collection:
+```typescript
+{
+  resetToken?: string;       // Secure random token
+  resetTokenExpiry?: Date;   // Expiry timestamp (1 hour)
+}
+```
+
+### Testing Locally
+
+1. Go to `/auth/login`
+2. Click "Forgot password?"
+3. Enter your email
+4. Copy the reset link shown on screen
+5. Paste in browser to go to reset page
+6. Enter new password (min 6 characters)
+7. Confirm password
+8. Submit and you'll be redirected to login
+
+### Production Setup
+
+**TODO**: Integrate email service for sending reset links:
+
+```typescript
+// In /api/auth/forgot-password/route.ts
+// Replace the return with actual email sending
+
+import { sendEmail } from "@/lib/email"; // Your email service
+
+await sendEmail({
+  to: email,
+  subject: "Reset Your MealMuse Password",
+  html: `
+    <p>Click the link below to reset your password:</p>
+    <a href="${resetLink}">${resetLink}</a>
+    <p>This link expires in 1 hour.</p>
+  `
+});
+```
+
+**Recommended Email Services**:
+- [Resend](https://resend.com) - Modern, developer-friendly
+- [SendGrid](https://sendgrid.com) - Enterprise-grade
+- [AWS SES](https://aws.amazon.com/ses/) - Cost-effective
+- [Nodemailer](https://nodemailer.com) - Self-hosted SMTP
+
+---
+
+## 6. Dietary Filter Bug Fix
+
+### Issue
+Dietary filters were not working because the filter expected capitalized values (`"Vegan"`, `"Vegetarian"`) but seeded recipes had lowercase values (`"vegan"`, `"vegetarian"`).
+
+### Solution
+Updated the dietary filter to be **case-insensitive**:
+
+```typescript
+// Before
+if (!dietary.includes(dietaryFilter)) {
+  return false;
+}
+
+// After
+const hasMatch = dietary.some((pref: string) => 
+  pref.toLowerCase() === dietaryFilter.toLowerCase()
+);
+if (!hasMatch) {
+  return false;
+}
+```
+
+### Files Updated
+- `app/recipes/RecipesClient.tsx` - Made dietary filter case-insensitive
+
+---
+
 ## Future Enhancements
 
 - [ ] Add custom event tracking (e.g., recipe viewed, favorited, etc.)
@@ -244,6 +369,9 @@ ADMIN_API_KEY=your_admin_api_key
 - [ ] Add breadcrumb schema for navigation
 - [ ] Create recipe cards with more metadata (servings, calories, etc.)
 - [ ] Add image optimization for social sharing
+- [ ] Integrate email service for password reset links
+- [ ] Add 2FA/MFA authentication
+- [ ] Add social login (Google, Facebook)
 
 ---
 
@@ -254,3 +382,4 @@ For issues or questions:
 1. Check the implementation in `lib/fractionConverter.ts`
 2. Review recipe page code in `app/recipes/[recipeId]/page.tsx`
 3. Check API endpoint in `app/api/admin/seed-recipes/route.ts`
+4. Review password reset in `app/api/auth/forgot-password/route.ts` and `app/api/auth/reset-password/route.ts`
